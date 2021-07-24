@@ -3,7 +3,7 @@ var router = express.Router();
 
 router.get('/', function(req, res, next) {
 
-    const algs = ['Tane', 'Pyro']
+    const algs = ['TaneX', 'Pyro', 'FastFDs']
     var result = [];
 
     for (var idx in algs) {
@@ -14,3 +14,4 @@ router.get('/', function(req, res, next) {
 });
 
 module.exports = router;
+ls

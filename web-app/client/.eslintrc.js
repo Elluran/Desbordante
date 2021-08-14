@@ -23,14 +23,11 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: "module",
   },
-  plugins: [
-    "react",
-    "@typescript-eslint",
-    "react-hooks",
-  ],
+  plugins: ["react", "@typescript-eslint", "react-hooks"],
   rules: {
     curly: ["error", "all"],
     "brace-style": "off",
+    "operator-linebreak": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",
     "react/prop-types": "off",
@@ -39,7 +36,11 @@ module.exports = {
     "import/no-unresolved": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
-    "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx", ".tsx"] }],
+    "react/jsx-filename-extension": [
+      1,
+      { extensions: [".js", ".jsx", ".tsx"] },
+    ],
+    "react/button-has-type": "off",
     "no-use-before-define": ["off", "error", { variables: false }],
     "import/prefer-default-export": "off",
     "import/extensions": [

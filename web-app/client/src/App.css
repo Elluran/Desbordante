@@ -61,3 +61,28 @@ header .left h1 {
   z-index: 10;
   background-color: var(--background-dark);
 }
+
+/* =====NEW===== */
+
+.button-container,
+.toggle-container {
+  margin: 0rem 0.8rem;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-container > *,
+.toggle-container > * {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: "Roboto", sans-serif;
+  font-weight: 300;
+  border-radius: 1000px;
+  border: 0;
+  color: var(--text-white);
+  transition: 0.3s;
+}

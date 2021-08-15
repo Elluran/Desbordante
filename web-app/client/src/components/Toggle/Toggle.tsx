@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 interface Props {
   toggleCondition: () => boolean;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  enabled?: boolean;
   colorInactive?: string[];
   colorActive?: string[];
   outlineInactive?: string;
@@ -17,6 +18,7 @@ interface Props {
 const Toggle: React.FC<Props> = ({
   toggleCondition,
   onClick,
+  enabled = true,
   colorInactive = ["#00000000"],
   colorActive = ["red", "blue"],
   outlineInactive = "#000000",
@@ -45,8 +47,9 @@ const Toggle: React.FC<Props> = ({
         : `linear-gradient(45deg, ${colorInactive.join(", ")})`,
     padding: `${size}rem`,
     backfaceVisibility: "hidden",
-    transform: `scale(${hover ? 1.03 : 1})`,
-    cursor: hover ? "pointer" : "default",
+    transform: `scale(${hover && enabled ? 1.03 : 1})`,
+    cursor: hover && enabled ? "pointer" : "default",
+    filter: `brightness(${enabled ? 100 : 50}%)`,
     outline: `${outlineWidth}rem solid ${outlineInactive}`,
     color: textColorInactive,
   };
@@ -65,7 +68,7 @@ const Toggle: React.FC<Props> = ({
     <button
       type="button"
       style={isToggled ? styleActive : styleInactive}
-      onClick={onClick}
+      onClick={enabled ? onClick : () => {}}
     >
       {children}
     </button>
@@ -93,7 +96,7 @@ const Toggle: React.FC<Props> = ({
       onMouseLeave={() => setHover(false)}
       className="toggle-container"
     >
-      {glow !== "no" && toggleGlow}
+      {glow !== "no" && enabled && toggleGlow}
       {toggle}
     </div>
   );

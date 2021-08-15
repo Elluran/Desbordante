@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 interface Props {
   type: "button" | "submit";
   onClick: React.MouseEventHandler<HTMLButtonElement>;
+  enabled?: boolean;
   color?: string[];
   size?: number;
   glow?: "no" | "hover" | "always";
@@ -12,6 +13,7 @@ interface Props {
 const Button: React.FC<Props> = ({
   type,
   onClick,
+  enabled = true,
   color = ["red", "blue"],
   size = 1.4,
   glow = "hover",
@@ -43,13 +45,14 @@ const Button: React.FC<Props> = ({
         : `linear-gradient(45deg, ${color.join(", ")})`,
     padding: `${size}rem`,
     backfaceVisibility: "hidden",
-    transform: `scale(${hover ? 1.03 : 1})`,
-    cursor: hover ? "pointer" : "default",
+    cursor: hover && enabled ? "pointer" : "default",
+    filter: `brightness(${enabled ? 100 : 50}%)`,
+    transform: `scale(${hover && enabled ? 1.03 : 1})`,
   };
 
   // button user sees and clicks
   const button = (
-    <button type={type} style={style} onClick={onClick}>
+    <button type={type} style={style} onClick={enabled ? onClick : () => {}}>
       {children}
     </button>
   );
@@ -77,7 +80,7 @@ const Button: React.FC<Props> = ({
       onMouseLeave={() => setHover(false)}
       className="button-container"
     >
-      {glow !== "no" && buttonGlow}
+      {glow !== "no" && enabled && buttonGlow}
       {button}
     </div>
   );

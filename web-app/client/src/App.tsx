@@ -39,6 +39,7 @@ const App: React.FC = () => {
             size={1}
             glow="hover"
             onClick={() => console.log(value)}
+            enabled={index !== 2}
           >
             {value}
           </Button>
@@ -63,6 +64,7 @@ const App: React.FC = () => {
               onClick={() => setChoose(value)}
               size={1}
               glow="no"
+              enabled={index !== 2}
             >
               {value}
             </Toggle>

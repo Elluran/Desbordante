@@ -1,4 +1,5 @@
 import React from "react";
+import "./StatusDisplay.css";
 
 interface Props {
   text: string;

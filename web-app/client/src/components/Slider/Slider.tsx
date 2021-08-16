@@ -1,4 +1,5 @@
 import React from "react";
+import "./Slider.css";
 
 /* eslint-disable no-unused-vars */
 interface Props {
@@ -18,7 +19,7 @@ const Slider: React.FC<Props> = ({
   onChange,
   min = 0,
   max = 1,
-  step = 0.01,
+  step = 0.005,
   exponential = false,
 }) => {
   const exp = Math.log(10) / Math.log(2);

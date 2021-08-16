@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import ProgressBar from "../ProgressBar/ProgressBar";
+import "./LoadingScreen.css";
 
 interface Props {
   onComplete: () => void;

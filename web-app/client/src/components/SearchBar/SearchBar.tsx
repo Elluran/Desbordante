@@ -1,4 +1,5 @@
 import React from "react";
+import "./SearchBar.css";
 
 /* eslint-disable no-unused-vars */
 interface Props {

@@ -14,6 +14,7 @@ const App: React.FC = () => {
   const [set, setSet] = useState([true, true, false]);
   const [c, setC] = useState(0);
   const [d, setD] = useState("0.03");
+  console.log(set);
 
   return (
     <div
@@ -42,6 +43,7 @@ const App: React.FC = () => {
             key={index}
             type="button"
             glow="hover"
+            color="gradient"
             onClick={() => console.log(value)}
             enabled={index !== 2}
           >
@@ -88,10 +90,11 @@ const App: React.FC = () => {
             key={index}
             toggleCondition={set[index]}
             onClick={() => {
-              let newSet = set;
+              let newSet = [...set];
               newSet[index] = !newSet[index];
               setSet([...newSet]);
             }}
+            color="gradient"
           >
             {value}
           </Toggle>

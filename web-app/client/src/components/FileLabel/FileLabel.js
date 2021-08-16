@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import "./FileLabel.css";
 import { useDropzone } from "react-dropzone";
 
+// interface Props {
+//   file: File;
+// }
+
 function FileLabel({
   file,
   fileExistenceValidatorFunc,

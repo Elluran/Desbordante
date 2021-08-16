@@ -5,7 +5,7 @@ interface Props {
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   enabled?: boolean;
   color?: string[];
-  size?: number;
+  textColor?: string;
   glow?: "no" | "hover" | "always";
   glowRadius?: number;
 }
@@ -15,7 +15,7 @@ const Button: React.FC<Props> = ({
   onClick,
   enabled = true,
   color = ["red", "blue"],
-  size = 1.4,
+  textColor = "#ffffff",
   glow = "hover",
   glowRadius = 0.4,
   children,
@@ -38,16 +38,15 @@ const Button: React.FC<Props> = ({
 
   // dynamic style for button
   const style: React.CSSProperties = {
-    height: `${size}rem`,
     background:
       color.length === 1
         ? color[0]
         : `linear-gradient(45deg, ${color.join(", ")})`,
-    padding: `${size}rem`,
     backfaceVisibility: "hidden",
     cursor: hover && enabled ? "pointer" : "default",
     filter: `brightness(${enabled ? 100 : 50}%)`,
     transform: `scale(${hover && enabled ? 1.03 : 1})`,
+    color: textColor,
   };
 
   // button user sees and clicks

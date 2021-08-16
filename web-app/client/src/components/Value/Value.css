@@ -1,19 +1,12 @@
 @import url("../../colors.css");
 
 .value {
-  text-align: center;
+  border-width: 0.15rem;
+  border-style: solid;
 }
 
-.value:focus {
+/* .value:focus {
   background-color: var(--background-active);
   border-color: var(--border-active);
   outline: none;
-}
-
-.value.invalid {
-  border-color: var(--error);
-}
-
-.value.invalid:focus {
-  background-color: var(--background-active);
-}
+} */

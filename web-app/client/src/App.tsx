@@ -4,11 +4,16 @@ import React, { useState } from "react";
 import "./App.css";
 import Button from "./components/Button/Button";
 import Toggle from "./components/Toggle/Toggle";
+import AttributeLabel from "./components/AttributeLabel/AttributeLabel";
+import Dependency from "./components/Dependency/Dependency";
+import Value from "./components/Value/Value";
+import Slider from "./components/Slider/Slider";
 
 const App: React.FC = () => {
   const [choose, setChoose] = useState("I");
   const [set, setSet] = useState([true, true, false]);
-  console.log(choose);
+  const [c, setC] = useState(0);
+  const [d, setD] = useState("0.03");
 
   return (
     <div
@@ -36,7 +41,6 @@ const App: React.FC = () => {
           <Button
             key={index}
             type="button"
-            size={1}
             glow="hover"
             onClick={() => console.log(value)}
             enabled={index !== 2}
@@ -60,11 +64,10 @@ const App: React.FC = () => {
           .map((value, index) => (
             <Toggle
               key={index}
-              toggleCondition={() => choose === value}
+              toggleCondition={choose === value}
               onClick={() => setChoose(value)}
-              size={1}
               glow="no"
-              enabled={index !== 2}
+              isEnabled={index !== 2}
             >
               {value}
             </Toggle>
@@ -83,17 +86,47 @@ const App: React.FC = () => {
         {"Plz Send Help".split(" ").map((value, index) => (
           <Toggle
             key={index}
-            toggleCondition={() => set[index]}
+            toggleCondition={set[index]}
             onClick={() => {
               let newSet = set;
               newSet[index] = !newSet[index];
               setSet([...newSet]);
             }}
-            size={1}
           >
             {value}
           </Toggle>
         ))}
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          margin: "1rem",
+        }}
+      >
+        Other:
+        <AttributeLabel text="AttributeLabel" labelColor="red" />
+        <Dependency
+          lhs={["mat", "meh", "luchshe"]}
+          rhs="vseh"
+          isActive={c === 0}
+          onClick={() => setC(0)}
+        />
+        <Dependency
+          lhs={["mat", "meh"]}
+          rhs="vseh"
+          isActive={c === 1}
+          onClick={() => setC(1)}
+        />
+        <br />
+        <Value
+          value={d}
+          onChange={(str: string) => setD(str)}
+          inputValidator={(str: string) => !isNaN(+str) && !!str}
+        />
+        <Slider value={d} onChange={(str: string) => setD(str)} exponential />
       </div>
     </div>
   );

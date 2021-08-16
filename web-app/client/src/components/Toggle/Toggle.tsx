@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 
 interface Props {
-  toggleCondition: () => boolean;
+  toggleCondition: boolean;
   onClick: React.MouseEventHandler<HTMLButtonElement>;
-  enabled?: boolean;
+  isEnabled?: boolean;
   colorInactive?: string[];
   colorActive?: string[];
   outlineInactive?: string;
   outlineWidth?: number;
   textColorInactive?: string;
   textColorActive?: string;
-  size?: number;
   glow?: "no" | "toggle";
   glowRadius?: number;
 }
@@ -18,38 +17,35 @@ interface Props {
 const Toggle: React.FC<Props> = ({
   toggleCondition,
   onClick,
-  enabled = true,
+  isEnabled = true,
   colorInactive = ["#00000000"],
   colorActive = ["red", "blue"],
   outlineInactive = "#000000",
   outlineWidth = 0.1,
   textColorInactive = "#000000",
   textColorActive = "#ffffff",
-  size = 1.4,
   glow = "toggle",
   glowRadius = 0.4,
   children,
 }) => {
   const [hover, setHover] = useState(false);
-  const [isToggled, setIsToggled] = useState(toggleCondition());
+  const [isToggled, setIsToggled] = useState(toggleCondition);
 
   useEffect(() => {
-    setIsToggled(toggleCondition());
+    setIsToggled(toggleCondition);
   }, [toggleCondition]);
 
   const styleInactive: React.CSSProperties = {
     position: "relative",
     zIndex: 2,
-    height: `${size}rem`,
     background:
       colorInactive.length === 1
         ? colorInactive[0]
         : `linear-gradient(45deg, ${colorInactive.join(", ")})`,
-    padding: `${size}rem`,
     backfaceVisibility: "hidden",
-    transform: `scale(${hover && enabled ? 1.03 : 1})`,
-    cursor: hover && enabled ? "pointer" : "default",
-    filter: `brightness(${enabled ? 100 : 50}%)`,
+    transform: `scale(${hover && isEnabled ? 1.03 : 1})`,
+    cursor: hover && isEnabled ? "pointer" : "default",
+    filter: `brightness(${isEnabled ? 100 : 50}%)`,
     outline: `${outlineWidth}rem solid ${outlineInactive}`,
     color: textColorInactive,
   };
@@ -68,7 +64,7 @@ const Toggle: React.FC<Props> = ({
     <button
       type="button"
       style={isToggled ? styleActive : styleInactive}
-      onClick={enabled ? onClick : () => {}}
+      onClick={isEnabled ? onClick : () => {}}
     >
       {children}
     </button>
@@ -96,7 +92,7 @@ const Toggle: React.FC<Props> = ({
       onMouseLeave={() => setHover(false)}
       className="toggle-container"
     >
-      {glow !== "no" && enabled && toggleGlow}
+      {glow !== "no" && isEnabled && toggleGlow}
       {toggle}
     </div>
   );

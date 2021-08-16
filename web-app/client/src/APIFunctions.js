@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const serverURL = "http://192.168.1.36:5000";
+const serverURL = "http://localhost:5000";
 
 export async function getData(property) {
   const response = await axios.get(`${serverURL}/${property}`);

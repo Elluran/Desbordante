@@ -33,6 +33,7 @@ module.exports = {
     "react/prop-types": "off",
     quotes: ["error", "double"],
     "jsx-quotes": ["error", "prefer-double"],
+    "jsx-a11y/click-events-have-key-events": "off",
     "import/no-unresolved": "off",
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",

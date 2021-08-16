@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useState, useEffect } from "react";
 import "./FileForm.css";
-import Checkbox from "../Checkbox/Checkbox";
+import Checkbox from "../Toggle/Checkbox";
 import Submit from "../Submit/Submit";
 import Radio from "../Radio/Radio";
 import Value from "../Value/Value";

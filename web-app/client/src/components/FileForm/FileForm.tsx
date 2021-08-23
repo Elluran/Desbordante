@@ -1,34 +1,41 @@
 /* eslint-disable */
 import React, { useState, useEffect } from "react";
+import { AxiosResponse } from "axios";
+
 import "./FileForm.css";
-import Checkbox from "../Toggle/Checkbox";
-import Submit from "../Submit/Submit";
-import Radio from "../Radio/Radio";
 import Value from "../Value/Value";
+import Toggle from "../Toggle/Toggle";
+import Button from "../Button/Button";
 import Slider from "../Slider/Slider";
 import UploadFile from "../UploadFile/UploadFile";
 import { getData, submitDatasetWthParameters } from "../../APIFunctions";
 
-function FileForm({
+interface Props {
+  onSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onUploadProgress: (e: any) => void;
+  setFilename: (str: string) => void;
+  handleResponse: (res: AxiosResponse) => void;
+}
+
+const FileForm: React.FC<Props> = ({
   onSubmit,
   onUploadProgress,
-  cancelTokenSource,
   setFilename,
-  setTaskID,
-}) {
+  handleResponse,
+}) => {
   // Allowed field values
-  const [allowedFileFormats, setAllowedFileFormats] = useState([]);
-  const [allowedSeparators, setAllowedSeparators] = useState([]);
-  const [allowedAlgorithms, setAllowedAlgorithms] = useState([]);
+  const [allowedFileFormats, setAllowedFileFormats] = useState<string[]>([]);
+  const [allowedSeparators, setAllowedSeparators] = useState<string[]>([]);
+  const [allowedAlgorithms, setAllowedAlgorithms] = useState<string[]>([]);
   const [maxfilesize, setMaxFileSize] = useState(5e7);
 
   // Parameters, later sent to the server on execution as JSON
-  const [file, setFile] = useState(null);
+  const [file, setFile] = useState<File | null>(null);
   const [hasHeader, setHasHeader] = useState(true);
   const [separator, setSeparator] = useState("");
   const [algorithm, setAlgorithm] = useState("");
-  const [errorThreshold, setErrorThreshold] = useState(0.05);
-  const [maxLHSAttributes, setMaxLHSAttributes] = useState(5);
+  const [errorThreshold, setErrorThreshold] = useState<string>("0.05");
+  const [maxLHSAttributes, setMaxLHSAttributes] = useState<string>("5");
 
   // Getting allowed field values from server
   useEffect(() => {
@@ -48,14 +55,18 @@ function FileForm({
   useEffect(() => setFilename(file ? file.name : ""), [file]);
 
   // Validator functions for fields
-  const fileExistenceValidatorFunc = (file) => !!file;
-  const fileSizeValidatorFunc = (file) => file.size <= maxfilesize;
-  const fileFormatValidatorFunc = (file) =>
-    allowedFileFormats.indexOf(file.type) !== -1;
+  const fileExistenceValidatorFunc = (file: File | null) => !!file;
+  const fileSizeValidatorFunc = (file: File | null) =>
+    !!file && file.size <= maxfilesize;
+  const fileFormatValidatorFunc = (file: File | null) =>
+    !!file && allowedFileFormats.indexOf(file.type) !== -1;
 
-  const separatorValidatorFunc = (n) => allowedSeparators.indexOf(n) !== -1;
-  const errorValidatorFunc = (n) => !isNaN(n) && n >= 0 && n <= 1;
-  const maxLHSValidatorFunc = (n) => !isNaN(n) && n > 0 && n % 1 === 0;
+  const separatorValidatorFunc = (sep: string) =>
+    allowedSeparators.indexOf(sep) !== -1;
+  const errorValidatorFunc = (err: string) =>
+    !isNaN(+err) && +err >= 0 && +err <= 1;
+  const maxLHSValidatorFunc = (lhs: string) =>
+    !isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0;
 
   // Validator function that ensures every field is correct
   function isValid() {
@@ -76,94 +87,97 @@ function FileForm({
         <UploadFile
           onClick={setFile}
           file={file}
-          fileExistenceValidatorFunc={fileExistenceValidatorFunc}
-          fileSizeValidatorFunc={fileSizeValidatorFunc}
-          fileFormatValidatorFunc={fileFormatValidatorFunc}
+          fileExistenceValidatorFunc={() => fileExistenceValidatorFunc(file)}
+          fileSizeValidatorFunc={() => fileSizeValidatorFunc(file)}
+          fileFormatValidatorFunc={() => fileFormatValidatorFunc(file)}
         />
       </div>
       <div className="form-item">
         <h3>2. File properties</h3>
-        <Checkbox text="Header" toggleObj={hasHeader} onClick={setHasHeader} />
+
+        <Toggle
+          onClick={() => setHasHeader(!hasHeader)}
+          toggleCondition={hasHeader}
+        >
+          Header
+        </Toggle>
         <h3>separator</h3>
         <Value
-          toggleObj={separator}
+          value={separator}
           onChange={setSeparator}
           size={1}
-          validatorFunc={separatorValidatorFunc}
+          inputValidator={separatorValidatorFunc}
         />
       </div>
       <div className="form-item">
         <h3>3. Algorithm</h3>
         {allowedAlgorithms.map((algo) => (
-          <Radio
-            text={algo}
-            onClick={setAlgorithm}
-            toggleObj={algorithm}
+          <Toggle
+            onClick={() => setAlgorithm(algo)}
+            toggleCondition={algorithm === algo}
             key={algo}
-          />
+          >
+            {algo}
+          </Toggle>
         ))}
       </div>
       <div className="form-item">
         <h3>4. Error threshold</h3>
         <Value
-          toggleObj={errorThreshold}
+          value={errorThreshold}
           onChange={setErrorThreshold}
           size={3}
-          validatorFunc={errorValidatorFunc}
+          inputValidator={errorValidatorFunc}
         />
         <Slider
-          toggleObj={errorThreshold}
+          value={errorThreshold}
           onChange={setErrorThreshold}
-          min={0}
-          max={1}
           step={0.001}
           exponential
-          validatorFunc={errorValidatorFunc}
         />
       </div>
       <div className="form-item">
         <h3>5. Max LHS attributes</h3>
         <Value
-          toggleObj={maxLHSAttributes}
+          value={maxLHSAttributes}
           onChange={setMaxLHSAttributes}
-          min={1}
-          max={100}
-          integer
           size={3}
-          validatorFunc={maxLHSValidatorFunc}
+          inputValidator={maxLHSValidatorFunc}
         />
         <Slider
+          value={maxLHSAttributes}
           min={1}
           max={10}
-          toggleObj={maxLHSAttributes}
           onChange={setMaxLHSAttributes}
           step={1}
-          validatorFunc={maxLHSValidatorFunc}
         />
       </div>
 
-      <Submit
-        text="Analyze"
-        onClick={() => {
-          onSubmit();
+      <Button
+        type="submit"
+        color="gradient"
+        glow="always"
+        enabled={isValid()}
+        onClick={(e) => {
+          onSubmit(e);
           submitDatasetWthParameters(
-            file,
+            file as File,
             {
               algName: algorithm,
               semicolon: separator,
               errorPercent: +errorThreshold,
               hasHeader: hasHeader,
-              maxLHS: maxLHSAttributes,
+              maxLHS: +maxLHSAttributes,
             },
             onUploadProgress,
-            cancelTokenSource,
-            setTaskID
+            handleResponse
           );
         }}
-        validatorFunc={isValid}
-      />
+      >
+        Analyze
+      </Button>
     </form>
   );
-}
+};
 
 export default FileForm;

@@ -1,21 +1,33 @@
 /* eslint-disable */
 
 import React, { useState, useEffect } from "react";
+import { Doughnut } from "react-chartjs-2";
+
 import "./PieChartFull.css";
 import SearchBar from "../SearchBar/SearchBar";
-import { Doughnut } from "react-chartjs-2";
 import Button from "../Button/Button";
 import SelectedAttribute from "../SelectedAttribute/SelectedAttribute";
 import AttributeLabel from "../AttributeLabel/AttributeLabel";
 
-function PieChartFull({
-  title = "Chart title",
-  attributes = { lhs: [], rhs: [] },
+type attribute = { name: string; value: number };
+
+interface Props {
+  title: string;
+  attributes: attribute[];
+  maxItemsShown?: number;
+  maxItemsSelected?: number;
+  selectedAttributes: attribute[];
+  setSelectedAttributes: (arr: string[]) => void;
+}
+
+const PieChartFull: React.FC<Props> = ({
+  title,
+  attributes,
   maxItemsShown = 9,
   maxItemsSelected = 9,
   selectedAttributes = [],
   setSelectedAttributes,
-}) {
+}) => {
   // Get how much px is one rem, later used in chart dimensions
   const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
 
@@ -34,14 +46,10 @@ function PieChartFull({
   ];
 
   const [searchString, setSearchString] = useState("");
-  const [foundAttributes, setFoundAttributes] = useState([]);
+  const [foundAttributes, setFoundAttributes] = useState<attribute[]>([]);
   const [depth, setDepth] = useState(0);
   const [otherValue, setOtherValue] = useState(0);
-  const [displayAttributes, setDisplayAttributes] = useState([]);
-
-  // console.log(foundAttributes);
-  // console.log(depth);
-  // console.log(displayAttributes);
+  const [displayAttributes, setDisplayAttributes] = useState<attribute[]>([]);
 
   // Update found attributes if search string changes or attributes change. Keep found attributes sorted.
   useEffect(() => {
@@ -77,14 +85,12 @@ function PieChartFull({
     setDisplayAttributes(newDisplayAttributes);
   }, [foundAttributes, foundAttributes, depth]);
 
-  // console.log(selectedAttributes);
-
   return (
     <div className="pie-chart-full">
       <h1 className="title">{title}</h1>
       <SearchBar
         defaultText="Filter attributes..."
-        setSearchString={setSearchString}
+        onChange={setSearchString}
       />
       <div className="chart">
         <div className="chart-legend">
@@ -119,7 +125,7 @@ function PieChartFull({
               ],
             }}
             options={{
-              onClick: (event, item) => {
+              onClick: (_, item) => {
                 if (item.length > 0) {
                   if (item[0].index == maxItemsShown) {
                     setDepth(depth + 1);
@@ -190,7 +196,7 @@ function PieChartFull({
               zIndex: 1,
               padding: "2rem",
               opacity: depth > 0 ? 1 : 0,
-              cursor: depth > 0 ? "pointer" : "default"
+              cursor: depth > 0 ? "pointer" : "default",
             }}
           />
         </div>
@@ -203,13 +209,13 @@ function PieChartFull({
                 selectedAttributes.filter((_, idx) => index != idx)
               )
             }
-            key={index}
+            key={attr}
             text={attr.name}
           />
         ))}
       </div>
     </div>
   );
-}
+};
 
 export default PieChartFull;

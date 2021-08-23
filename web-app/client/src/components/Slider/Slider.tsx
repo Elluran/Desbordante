@@ -8,8 +8,6 @@ interface Props {
   min?: number;
   max?: number;
   step?: number;
-  lineColor?: string;
-  thumbColor?: string;
   exponential?: boolean;
 }
 /* eslint-enable no-unused-vars */

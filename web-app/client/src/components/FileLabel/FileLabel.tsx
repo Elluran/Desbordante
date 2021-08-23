@@ -3,18 +3,23 @@ import React, { useState } from "react";
 import "./FileLabel.css";
 import { useDropzone } from "react-dropzone";
 
-// interface Props {
-//   file: File;
-// }
+interface Props {
+  file: File | null;
+  fileExistenceValidatorFunc: (file: File | null) => boolean;
+  fileSizeValidatorFunc: (file: File | null) => boolean;
+  fileFormatValidatorFunc: (file: File | null) => boolean;
+  onClick: () => void;
+  setFile: (file: File) => void;
+}
 
-function FileLabel({
+const FileLabel: React.FC<Props> = ({
   file,
   fileExistenceValidatorFunc,
   fileSizeValidatorFunc,
   fileFormatValidatorFunc,
   onClick,
   setFile,
-}) {
+}) => {
   // Is the input field glowing
   const [glow, setGlow] = useState(false);
 
@@ -39,7 +44,7 @@ function FileLabel({
   );
   if (fileExistenceValidatorFunc(file)) {
     if (fileSizeValidatorFunc(file) && fileFormatValidatorFunc(file)) {
-      fileTitle = file.name;
+      fileTitle = <div>{file?.name}</div>;
     } else {
       if (fileSizeValidatorFunc(file)) {
         fileTitle = (
@@ -56,14 +61,7 @@ function FileLabel({
   }
 
   return (
-    <div
-      className="file-name-wrapper"
-      // style={{
-      //   position: "relative",
-      //   transform: glow ? "scale(1.03)" : "scale(1)",
-      // }}
-      {...getRootProps()}
-    >
+    <div className="file-name-wrapper" {...getRootProps()}>
       <div
         className={`round-corners gradient-fill ${borderClass} glow`}
         style={{
@@ -85,6 +83,6 @@ function FileLabel({
       </div>
     </div>
   );
-}
+};
 
 export default FileLabel;

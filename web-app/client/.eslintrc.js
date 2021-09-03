@@ -27,6 +27,8 @@ module.exports = {
   rules: {
     curly: ["error", "all"],
     "brace-style": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/interactive-supports-focus": "off",
     "operator-linebreak": "off",
     "@typescript-eslint/brace-style": ["error", "1tbs"],
     "no-console": "error",

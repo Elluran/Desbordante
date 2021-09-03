@@ -1,23 +1,23 @@
 import React from "react";
+
 import "./Dependency.css";
+import { dependency } from "../../types";
 
 interface Props {
-  lhs: string[];
-  rhs: string;
+  dep: dependency;
   isActive: boolean;
   onClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
 const Dependency: React.FC<Props> = ({
-  lhs = [],
-  rhs = "",
+  dep,
   isActive,
   onClick,
 }) => (
   <div className="dependency" role="button" tabIndex={0} onClick={onClick}>
-    {lhs.map((attr) => (
-      <div className={`attribute-name ${isActive && "active"}`} key={attr}>
-        {attr}
+    {dep.lhs.map((attr) => (
+      <div className={`attribute-name ${isActive && "active"}`} key={attr.name}>
+        {attr.name}
       </div>
     ))}
 
@@ -30,7 +30,7 @@ const Dependency: React.FC<Props> = ({
       <line x1="58.23" y1="10.05" x2="0.5" y2="10.05" />
     </svg>
 
-    <div className={`attribute-name ${isActive ? "active" : ""}`}>{rhs}</div>
+    <div className={`attribute-name ${isActive ? "active" : ""}`}>{dep.rhs.name}</div>
   </div>
 );
 

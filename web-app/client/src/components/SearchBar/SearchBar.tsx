@@ -12,7 +12,7 @@ const SearchBar: React.FC<Props> = ({ defaultText, onChange }) => (
   <div className="search-bar">
     <input
       type="text"
-      className="round-corners search-input"
+      className="search-input"
       size={20}
       placeholder={defaultText}
       onChange={(e) => onChange(e.target.value)}

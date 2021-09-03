@@ -1,6 +1,6 @@
-/* eslint-disable */
 import React, { useState, useEffect } from "react";
-import { AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
+import { useHistory } from "react-router-dom";
 
 import "./FileForm.css";
 import Value from "../Value/Value";
@@ -8,19 +8,21 @@ import Toggle from "../Toggle/Toggle";
 import Button from "../Button/Button";
 import Slider from "../Slider/Slider";
 import UploadFile from "../UploadFile/UploadFile";
-import { getData, submitDatasetWthParameters } from "../../APIFunctions";
+import { serverURL, submitDatasetWthParameters } from "../../APIFunctions";
 
+/* eslint-disable no-unused-vars */
+/* eslint-disable no-console */
+/* eslint-disable max-len */
+/* eslint-disable no-shadow */
 interface Props {
   onSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  onUploadProgress: (e: any) => void;
-  setFilename: (str: string) => void;
+  setUploadProgress: (n: number) => void;
   handleResponse: (res: AxiosResponse) => void;
 }
 
 const FileForm: React.FC<Props> = ({
   onSubmit,
-  onUploadProgress,
-  setFilename,
+  setUploadProgress,
   handleResponse,
 }) => {
   // Allowed field values
@@ -37,46 +39,44 @@ const FileForm: React.FC<Props> = ({
   const [errorThreshold, setErrorThreshold] = useState<string>("0.05");
   const [maxLHSAttributes, setMaxLHSAttributes] = useState<string>("5");
 
+  const history = useHistory();
+
   // Getting allowed field values from server
   useEffect(() => {
-    getData("algsInfo").then((res) => {
-      setAllowedFileFormats(res.allowedFileFormats);
+    axios.get(`${serverURL}/algsInfo`, { timeout: 2000 })
+      .then((res) => (res.data))
+      .then((data) => {
+        setAllowedFileFormats(data.allowedFileFormats);
 
-      setAllowedAlgorithms(res.allowedAlgorithms);
-      setAlgorithm(res.allowedAlgorithms[0]);
+        setAllowedAlgorithms(data.allowedAlgorithms);
+        setAlgorithm(data.allowedAlgorithms[0]);
 
-      setAllowedSeparators(res.allowedSeparators);
-      setSeparator(res.allowedSeparators[0]);
+        setAllowedSeparators(data.allowedSeparators);
+        setSeparator(data.allowedSeparators[0]);
 
-      setMaxFileSize(res.maxFileSize);
-    });
-  }, []);
-
-  useEffect(() => setFilename(file ? file.name : ""), [file]);
+        setMaxFileSize(data.maxFileSize);
+      })
+      .catch((error) => history.push("/error"));
+  }, [history]);
 
   // Validator functions for fields
-  const fileExistenceValidatorFunc = (file: File | null) => !!file;
-  const fileSizeValidatorFunc = (file: File | null) =>
-    !!file && file.size <= maxfilesize;
-  const fileFormatValidatorFunc = (file: File | null) =>
-    !!file && allowedFileFormats.indexOf(file.type) !== -1;
+  const fileExistenceValidator = (file: File | null) => !!file;
+  const fileSizeValidator = (file: File | null) => !!file && file.size <= maxfilesize;
+  const fileFormatValidator = (file: File | null) => !!file && allowedFileFormats.indexOf(file.type) !== -1;
 
-  const separatorValidatorFunc = (sep: string) =>
-    allowedSeparators.indexOf(sep) !== -1;
-  const errorValidatorFunc = (err: string) =>
-    !isNaN(+err) && +err >= 0 && +err <= 1;
-  const maxLHSValidatorFunc = (lhs: string) =>
-    !isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0;
+  const separatorValidator = (sep: string) => allowedSeparators.indexOf(sep) !== -1;
+  const errorValidator = (err: string) => !Number.isNaN(+err) && +err >= 0 && +err <= 1;
+  const maxLHSValidator = (lhs: string) => !Number.isNaN(+lhs) && +lhs > 0 && +lhs % 1 === 0;
 
   // Validator function that ensures every field is correct
   function isValid() {
     return (
-      fileExistenceValidatorFunc(file) &&
-      fileSizeValidatorFunc(file) &&
-      fileFormatValidatorFunc(file) &&
-      separatorValidatorFunc(separator) &&
-      errorValidatorFunc(errorThreshold) &&
-      maxLHSValidatorFunc(maxLHSAttributes)
+      fileExistenceValidator(file) &&
+      fileSizeValidator(file) &&
+      fileFormatValidator(file) &&
+      separatorValidator(separator) &&
+      errorValidator(errorThreshold) &&
+      maxLHSValidator(maxLHSAttributes)
     );
   }
 
@@ -87,9 +87,9 @@ const FileForm: React.FC<Props> = ({
         <UploadFile
           onClick={setFile}
           file={file}
-          fileExistenceValidatorFunc={() => fileExistenceValidatorFunc(file)}
-          fileSizeValidatorFunc={() => fileSizeValidatorFunc(file)}
-          fileFormatValidatorFunc={() => fileFormatValidatorFunc(file)}
+          fileExistenceValidator={() => fileExistenceValidator(file)}
+          fileSizeValidator={() => fileSizeValidator(file)}
+          fileFormatValidator={() => fileFormatValidator(file)}
         />
       </div>
       <div className="form-item">
@@ -105,8 +105,8 @@ const FileForm: React.FC<Props> = ({
         <Value
           value={separator}
           onChange={setSeparator}
-          size={1}
-          inputValidator={separatorValidatorFunc}
+          size={2}
+          inputValidator={separatorValidator}
         />
       </div>
       <div className="form-item">
@@ -126,8 +126,8 @@ const FileForm: React.FC<Props> = ({
         <Value
           value={errorThreshold}
           onChange={setErrorThreshold}
-          size={3}
-          inputValidator={errorValidatorFunc}
+          size={4}
+          inputValidator={errorValidator}
         />
         <Slider
           value={errorThreshold}
@@ -142,7 +142,7 @@ const FileForm: React.FC<Props> = ({
           value={maxLHSAttributes}
           onChange={setMaxLHSAttributes}
           size={3}
-          inputValidator={maxLHSValidatorFunc}
+          inputValidator={maxLHSValidator}
         />
         <Slider
           value={maxLHSAttributes}
@@ -159,6 +159,7 @@ const FileForm: React.FC<Props> = ({
         glow="always"
         enabled={isValid()}
         onClick={(e) => {
+          e.preventDefault();
           onSubmit(e);
           submitDatasetWthParameters(
             file as File,
@@ -166,11 +167,11 @@ const FileForm: React.FC<Props> = ({
               algName: algorithm,
               semicolon: separator,
               errorPercent: +errorThreshold,
-              hasHeader: hasHeader,
+              hasHeader,
               maxLHS: +maxLHSAttributes,
             },
-            onUploadProgress,
-            handleResponse
+            setUploadProgress,
+            handleResponse,
           );
         }}
       >

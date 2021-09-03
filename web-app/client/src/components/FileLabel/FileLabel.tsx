@@ -1,22 +1,23 @@
-/* eslint-disable */
 import React, { useState } from "react";
 import "./FileLabel.css";
 import { useDropzone } from "react-dropzone";
 
+/* eslint-disable no-unused-vars */
 interface Props {
   file: File | null;
-  fileExistenceValidatorFunc: (file: File | null) => boolean;
-  fileSizeValidatorFunc: (file: File | null) => boolean;
-  fileFormatValidatorFunc: (file: File | null) => boolean;
+  fileExistenceValidator: (file: File | null) => boolean;
+  fileSizeValidator: (file: File | null) => boolean;
+  fileFormatValidator: (file: File | null) => boolean;
   onClick: () => void;
   setFile: (file: File) => void;
 }
+/* eslint-enable no-unused-vars */
 
 const FileLabel: React.FC<Props> = ({
   file,
-  fileExistenceValidatorFunc,
-  fileSizeValidatorFunc,
-  fileFormatValidatorFunc,
+  fileExistenceValidator,
+  fileSizeValidator,
+  fileFormatValidator,
   onClick,
   setFile,
 }) => {
@@ -24,62 +25,64 @@ const FileLabel: React.FC<Props> = ({
   const [glow, setGlow] = useState(false);
 
   // Needed for dropzone
-  const { getRootProps, getInputProps } = useDropzone({
+  const { getRootProps } = useDropzone({
     onDrop: (acceptedFiles) => setFile(acceptedFiles[0]),
   });
 
   // Make borders red if error occurs
-  const borderClass = fileExistenceValidatorFunc(file)
-    ? fileSizeValidatorFunc(file) && fileFormatValidatorFunc(file)
-      ? "active"
-      : "error"
-    : "inactive";
+  let borderClass = "inactive";
+  if (fileExistenceValidator(file)) {
+    if (fileSizeValidator(file) && fileFormatValidator(file)) {
+      borderClass = "active";
+    } else {
+      borderClass = "error";
+    }
+  }
 
   // show error if can't process file
   let fileTitle = (
     <>
-      <span className="hilight-green">Upload</span> your dataset, or
-      <span className="hilight-purple"> choose</span> one of ours ...
+      <span className="highlight-green">Upload</span>
+      {" your dataset, or "}
+      <span className="highlight-purple">choose</span>
+      {" one of ours ... "}
     </>
   );
-  if (fileExistenceValidatorFunc(file)) {
-    if (fileSizeValidatorFunc(file) && fileFormatValidatorFunc(file)) {
-      fileTitle = <div>{file?.name}</div>;
+  if (fileExistenceValidator(file)) {
+    if (fileSizeValidator(file) && fileFormatValidator(file)) {
+      fileTitle = <div>{`${file?.name.slice(0, 50)}...`}</div>;
+    } else if (fileSizeValidator(file)) {
+      fileTitle = (
+        <span className="highlight-red">
+          Error: this format is not supported
+        </span>
+      );
     } else {
-      if (fileSizeValidatorFunc(file)) {
-        fileTitle = (
-          <span className="hilight-red">
-            Error: this format is not supported
-          </span>
-        );
-      } else {
-        fileTitle = (
-          <span className="hilight-red">Error: this file is too large</span>
-        );
-      }
+      fileTitle = (
+        <span className="highlight-red">Error: this file is too large</span>
+      );
     }
   }
 
   return (
+    /* eslint-disable-next-line react/jsx-props-no-spreading */
     <div className="file-name-wrapper" {...getRootProps()}>
       <div
-        className={`round-corners gradient-fill ${borderClass} glow`}
+        className={`gradient-fill ${borderClass} glow`}
         style={{
-          zIndex: 0,
-          width: "30.5rem",
-          height: "3.2rem",
-          filter: "blur(1rem)",
           opacity: glow ? 1 : 0,
         }}
         onClick={onClick}
-      ></div>
+      >
+        {fileTitle}
+      </div>
       <div
-        className={`round-corners gradient-fill wrapper ${borderClass}`}
+        className={`gradient-fill outline ${borderClass}`}
         onClick={onClick}
         onMouseEnter={() => setGlow(true)}
         onMouseLeave={() => setGlow(false)}
       >
-        <div className="round-corners filename">{fileTitle}</div>
+        <div className="filename">{fileTitle}</div>
       </div>
     </div>
   );

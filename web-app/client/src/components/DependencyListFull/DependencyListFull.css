@@ -23,12 +23,9 @@
   align-items: center;
 }
 
-.dependency-list {
-  overflow-y: scroll;
-}
-
 /* hide scrollbar but allow scrolling */
 .dependency-list {
+  height: 50vh;
   -ms-overflow-style: none;
   scrollbar-width: none;
   overflow-y: scroll;

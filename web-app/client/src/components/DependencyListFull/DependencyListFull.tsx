@@ -6,18 +6,14 @@ import "./DependencyListFull.css";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
-
-type dependency = {
-  lhs: string[];
-  rhs: string;
-};
+import { attribute, dependency } from "../../types";
 
 type sortMethod = "Default" | "LHS" | "RHS";
 
 interface Props {
   dependencies: dependency[];
-  selectedAttributesLHS: string[];
-  selectedAttributesRHS: string[];
+  selectedAttributesLHS: attribute[];
+  selectedAttributesRHS: attribute[];
 }
 
 const DependencyListFull: React.FC<Props> = ({
@@ -25,6 +21,7 @@ const DependencyListFull: React.FC<Props> = ({
   selectedAttributesLHS,
   selectedAttributesRHS,
 }) => {
+
   const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
     []
   );
@@ -40,12 +37,7 @@ const DependencyListFull: React.FC<Props> = ({
           searchString
             .split(" ")
             .filter((str) => str)
-            .every((elem) =>
-              dep.lhs
-                .concat(dep.rhs)
-                .join("")
-                .includes(elem)
-            )
+            .every((elem) => (dep.lhs.map(attr => attr.name).includes(elem) || dep.rhs.name === elem))
         )
       : [...dependencies]
     )
@@ -79,7 +71,7 @@ const DependencyListFull: React.FC<Props> = ({
         );
       }
 
-      return d1.rhs.localeCompare(d2.rhs);
+      return d1.rhs.name.localeCompare(d2.rhs.name);
     });
 
     setSortedDependencies(newSortedDependencies);
@@ -106,16 +98,15 @@ const DependencyListFull: React.FC<Props> = ({
             {value}
           </Toggle>
         ))}
-      </div>
       <SearchBar
         defaultText="Filter dependencies"
         onChange={(str) => setSearchString(str)}
       />
+      </div>
       <div className="dependency-list">
         {sortedDependencies.map((dep, index) => (
           <Dependency
-            lhs={dep.lhs}
-            rhs={dep.rhs}
+            dep={dep}
             key={index}
             onClick={() => setChosenDependencyIndex(index)}
             isActive={index == chosenDependencyIndex}

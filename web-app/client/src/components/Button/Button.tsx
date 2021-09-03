@@ -5,9 +5,10 @@ interface Props {
   type: "button" | "submit";
   onClick: React.MouseEventHandler<HTMLButtonElement>;
   enabled?: boolean;
-  color?: "0" | "1" | "gradient";
+  color?: "0" | "1" | "gradient" | "error";
   glow?: "no" | "hover" | "always";
   glowRadius?: number;
+  size?: number;
 }
 
 const Button: React.FC<Props> = ({
@@ -18,6 +19,7 @@ const Button: React.FC<Props> = ({
   glow = "hover",
   glowRadius = 0.4,
   children,
+  size = 3,
 }) => {
   const [hover, setHover] = useState(false);
 
@@ -40,6 +42,7 @@ const Button: React.FC<Props> = ({
       <button
         type={type}
         className={`${enabled ? "" : "disabled"} color-${color}`}
+        style={{ fontSize: `${size * 0.4}rem`, padding: `${size * 0.25}rem ${size * 0.5}rem` }}
         onClick={enabled ? onClick : () => {}}
       >
         {children}

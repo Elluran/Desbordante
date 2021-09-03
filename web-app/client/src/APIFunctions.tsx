@@ -1,12 +1,16 @@
-/* eslint-disable */
-
 import axios, { AxiosResponse } from "axios";
 
-const serverURL = "http://localhost:5000";
+export const serverURL = "http://192.168.1.36:5000";
+
+/* eslint-disable no-console */
 
 export async function getData(property: string) {
-  const response = await axios.get(`${serverURL}/${property}`);
-  return response.data;
+  try {
+    const response = await axios.get(`${serverURL}/${property}`);
+    return response.data;
+  } catch (e) {
+    return e;
+  }
 }
 
 type parameters = {
@@ -17,13 +21,14 @@ type parameters = {
   maxLHS: number;
 };
 
+/* eslint-disable no-unused-vars */
 export function submitDatasetWthParameters(
   dataSet: File,
-  parameters: parameters,
-  onProgress: (progressEvent: any) => void,
-  onComplete: (res: AxiosResponse) => void
+  params: parameters,
+  onProgress: (n: number) => void,
+  onComplete: (res: AxiosResponse) => void,
 ) {
-  const json = JSON.stringify(parameters);
+  const json = JSON.stringify(params);
   const blob = new Blob([json], {
     type: "application/json",
   });
@@ -41,8 +46,9 @@ export function submitDatasetWthParameters(
   // Send formData object
   const config = {
     headers: { "Content-Type": "text/csv" },
-    onUploadProgress: (progressEvent: ProgressEvent) =>
-      onProgress(progressEvent.loaded / progressEvent.total),
+    onUploadProgress: (progressEvent: ProgressEvent) => {
+      onProgress(progressEvent.loaded / progressEvent.total);
+    },
   };
 
   axios.post(`${serverURL}/createTask`, data, config).then((response) => {

@@ -15,9 +15,11 @@ const LoadingScreen: React.FC<Props> = ({ onComplete, progress }) => {
   }, [progress, onComplete]);
 
   return (
-    <div className="message-and-bar">
-      <h1>Uploading your file. Please, wait.</h1>
-      <ProgressBar maxWidth={50} progress={progress} thickness={0.8} rounded />
+    <div className="loading-screen-bg">
+      <div className="message-and-bar">
+        <h1>Uploading your file. Please, wait.</h1>
+        <ProgressBar maxWidth={100} progress={progress} thickness={0.8} rounded />
+      </div>
     </div>
   );
 };

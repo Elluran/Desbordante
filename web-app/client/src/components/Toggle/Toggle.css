@@ -12,14 +12,13 @@
   justify-content: center;
   align-items: center;
   font-family: "Roboto", sans-serif;
-  font-size: 1rem;
-  padding: 1rem;
-  height: 2rem;
+  font-size: 1.2rem;
+  padding: 0.8rem 1.6rem;
+  height: 3rem;
   font-weight: 300;
   border-radius: 1000px;
-  border: none;
   cursor: pointer;
-  outline: 0.12rem solid var(--border);
+  border: 0.12rem solid var(--border);
   color: var(--text-grey);
   background-color: #00000000;
   backface-visibility: hidden;
@@ -32,7 +31,7 @@
 
 .toggle-container *.enabled {
   color: var(--text-white);
-  outline: none;
+  border-color: #0000;
 }
 
 .toggle-container *.enabled.color-0 {
@@ -54,25 +53,3 @@
   bottom: 0;
   right: 0;
 }
-
-/* .toggle-container .toggle.unchecked {
-  background-color: rgba(0, 0, 0, 0);
-  color: var(--text-grey);
-  border: 2px solid var(--border);
-  font-weight: 400;
-
-  transition: 0.3s;
-}
-
-.toggle-container .toggle.unchecked:hover {
-  background-color: var(--background-active);
-  border-color: var(--border-active);
-}
-
-.toggle-container .toggle.checked {
-  background-color: var(--primary-0);
-  color: var(--text-white);
-  border: 0.15rem solid var(--primary-0);
-  font-weight: 400;
-  transition: 0.3s;
-} */

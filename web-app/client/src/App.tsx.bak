@@ -4,6 +4,8 @@ import "./App.css";
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { disableBodyScroll } from "body-scroll-lock";
+import { Switch, Route } from "react-router";
+
 import Header from "./components/Header/Header";
 import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
 import FileForm from "./components/FileForm/FileForm";
@@ -12,23 +14,27 @@ import ProgressBar from "./components/ProgressBar/ProgressBar";
 import { getData } from "./APIFunctions";
 import Button from "./components/Button/Button";
 
-function App() {
-  // disableBodyScroll(document);
+type attribute = { name: string; value: number };
+type dependency = { lhs: attribute[]; rhs: attribute };
+type status =
+  | "UNSCHEDULED"
+  | "PROCESSING"
+  | "COMPLETED"
+  | "SERVER ERROR"
+  | "INCORRECT INPUT DATA";
 
-  // State describes what screen should be seen at the moment
-  const [state, setState] = useState(0);
-
+const App: React.FC = () => {
   const [filename, setFilename] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0.0);
 
   const [taskID, setTaskID] = useState("");
-  const [taskStatus, setTaskStatus] = useState("UNSCHEDULED");
+  const [taskStatus, setTaskStatus] = useState<status>("UNSCHEDULED");
   const [taskProgress, setTaskProgress] = useState(0);
 
-  const [dependencies, setDependencies] = useState([]);
+  const [dependencies, setDependencies] = useState<dependency[]>([]);
   const [attributes, setAttributes] = useState({ lhs: [], rhs: [] });
 
-  const [resetNeeded, setResetNeeded] = useState(0);
+  // const [resetNeeded, setResetNeeded] = useState(0);
 
   const reset = () => {
     setResetNeeded((resetNeeded + 1) % 2);
@@ -39,9 +45,10 @@ function App() {
     setTaskProgress(0);
     setDependencies([]);
     setAttributes({ lhs: [], rhs: [] });
-  }
+  };
 
-  const taskFinished = (status) => ["COMPLETED", "SERVER ERROR", "INCORRECT INPUT DATA"].includes(status);
+  const taskFinished = (status) =>
+    ["COMPLETED", "SERVER ERROR", "INCORRECT INPUT DATA"].includes(status);
 
   useEffect(() => {
     // console.log(state);
@@ -147,7 +154,11 @@ function App() {
               <h1>File: "{filename}"</h1>
               <h1>Status: {taskStatus}</h1>
             </div>
-            <Button text="Cancel" style={{ backgroundColor: "var(--error)" }} onClick={reset}/>
+            <Button
+              text="Cancel"
+              style={{ backgroundColor: "var(--error)" }}
+              onClick={reset}
+            />
           </header>
           <ProgressBar
             maxWidth={100}
@@ -170,6 +181,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;

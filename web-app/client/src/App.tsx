@@ -1,137 +1,48 @@
-/* eslint-disable */
+/* eslint-disable no-console */
 
-import React, { useState } from "react";
 import "./App.css";
-import Button from "./components/Button/Button";
-import Toggle from "./components/Toggle/Toggle";
-import AttributeLabel from "./components/AttributeLabel/AttributeLabel";
-import Dependency from "./components/Dependency/Dependency";
-import Value from "./components/Value/Value";
-import Slider from "./components/Slider/Slider";
+import React, { useState } from "react";
+import { Switch, BrowserRouter as Router, Route } from "react-router-dom";
+
+import LoadingScreen from "./components/LoadingScreen/LoadingScreen";
+import HomeScreen from "./components/HomeScreen/HomeScreen";
+import ErrorScreen from "./components/ErrorScreen/ErrorScreen";
+import Viewer from "./components/Viewer/Viewer";
 
 const App: React.FC = () => {
-  const [choose, setChoose] = useState("I");
-  const [set, setSet] = useState([true, true, false]);
-  const [c, setC] = useState(0);
-  const [d, setD] = useState("0.03");
-  console.log(set);
+  const [uploadProgress, setUploadProgress] = useState(0.0);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        width: "100%",
-        height: "100vh",
-        fontFamily: "Roboto, sans-serif",
-        fontWeight: 500,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "1rem",
-        }}
-      >
-        Button:
-        {"Oh My God Does TS Suck".split(" ").map((value, index) => (
-          <Button
-            key={index}
-            type="button"
-            glow="hover"
-            color="gradient"
-            onClick={() => console.log(value)}
-            enabled={index !== 2}
-          >
-            {value}
-          </Button>
-        ))}
-      </div>
+    <Router>
+      <Switch>
+        <div className="App">
+          {/* Error Page */}
+          <Route path="/error" exact>
+            <ErrorScreen code="404" message="can't connect to the server." />
+          </Route>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "1rem",
-        }}
-      >
-        Radio:
-        {"I died twice making these components"
-          .split(" ")
-          .map((value, index) => (
-            <Toggle
-              key={index}
-              toggleCondition={choose === value}
-              onClick={() => setChoose(value)}
-              glow="no"
-              isEnabled={index !== 2}
-            >
-              {value}
-            </Toggle>
-          ))}
-      </div>
+          {/* Loading Page */}
+          <Route path="/loading" exact>
+            <LoadingScreen
+              onComplete={() => {}} // TODO:
+              progress={uploadProgress}
+            />
+          </Route>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "1rem",
-        }}
-      >
-        Checkbox:
-        {"Plz Send Help".split(" ").map((value, index) => (
-          <Toggle
-            key={index}
-            toggleCondition={set[index]}
-            onClick={() => {
-              let newSet = [...set];
-              newSet[index] = !newSet[index];
-              setSet([...newSet]);
-            }}
-            color="gradient"
-          >
-            {value}
-          </Toggle>
-        ))}
-      </div>
+          {/* View Page */}
+          <Route path="/(attrs|deps)/:taskID/">
+            <div className="screen">
+              <Viewer />
+            </div>
+          </Route>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          margin: "1rem",
-        }}
-      >
-        Other:
-        <AttributeLabel text="AttributeLabel" labelColor="red" />
-        <Dependency
-          lhs={["mat", "meh", "luchshe"]}
-          rhs="vseh"
-          isActive={c === 0}
-          onClick={() => setC(0)}
-        />
-        <Dependency
-          lhs={["mat", "meh"]}
-          rhs="vseh"
-          isActive={c === 1}
-          onClick={() => setC(1)}
-        />
-        <br />
-        <Value
-          value={d}
-          onChange={(str: string) => setD(str)}
-          inputValidator={(str: string) => !isNaN(+str) && !!str}
-        />
-        <Slider value={d} onChange={(str: string) => setD(str)} exponential />
-      </div>
-    </div>
+          {/* Home Page */}
+          <Route path="/" exact>
+            <HomeScreen setUploadProgress={setUploadProgress} />
+          </Route>
+        </div>
+      </Switch>
+    </Router>
   );
 };
 

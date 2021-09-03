@@ -17,7 +17,7 @@ const ProgressBar: React.FC<Props> = ({
   const barWidth = maxWidth * progress;
 
   const style = {
-    width: `${maxWidth}rem`,
+    width: `${maxWidth}%`,
     height: `${thickness}rem`,
     borderRadius: rounded ? "1000px" : 0,
   };
@@ -29,14 +29,14 @@ const ProgressBar: React.FC<Props> = ({
         className="progress-bg progress-accent"
         style={{
           ...style,
-          width: `${barWidth}rem`,
+          width: `${barWidth}%`,
           opacity: "50%",
           filter: "blur(2rem)",
         }}
       />
       <div
         className="progress-bg progress-accent"
-        style={{ ...style, width: `${barWidth}rem` }}
+        style={{ ...style, width: `${barWidth}%` }}
       />
     </div>
   );

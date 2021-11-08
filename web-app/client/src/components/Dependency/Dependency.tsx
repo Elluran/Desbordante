@@ -1,7 +1,7 @@
 import React from "react";
 
-import "./Dependency.css";
-import { coloredDepedency } from "../../types";
+import "./Dependency.scss";
+import { dependency } from "../../types";
 
 interface Props {
   dep: coloredDepedency | undefined;
@@ -9,25 +9,13 @@ interface Props {
   onClick: React.MouseEventHandler<HTMLDivElement>;
 }
 
-const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => {
-  if (dep !== undefined) {
-    return (
-      <div className="dependency" role="button" tabIndex={0} onClick={onClick}>
-        {
-          dep.lhs.map((attr) => (
-            <div
-              style={isActive ? {
-                backgroundColor: `${attr.color}`,
-              } : {
-                backgroundColor: "#E5E5E5",
-              }}
-              className={`attribute-name ${isActive && "active"}`}
-              key={attr.name}
-            >
-              {attr.name}
-            </div>
-          ))
-        }
+const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => (
+  <div className="dependency" role="button" tabIndex={0} onClick={onClick}>
+    {dep.lhs.map((attr) => (
+      <div className={`attribute-name ${isActive && "active"}`} key={attr.name}>
+        {attr.name}
+      </div>
+    ))}
 
         <svg
           className={`arrow ${isActive ? "active" : ""}`}
@@ -38,18 +26,10 @@ const Dependency: React.FC<Props> = ({ dep, isActive, onClick }) => {
           <line x1="58.23" y1="10.05" x2="0.5" y2="10.05" />
         </svg>
 
-        <div
-          style={isActive ? {
-            backgroundColor: `${dep.rhs.color}`,
-          } : { backgroundColor: "#E5E5E5" }}
-          className={`attribute-name ${isActive ? "active" : ""}`}
-        >
-          {dep.rhs.name}
-        </div>
-      </div>
-    );
-  }
-  return (<></>);
-};
+    <div className={`attribute-name ${isActive ? "active" : ""}`}>
+      {dep.rhs ? dep.rhs.name : "undefined"}
+    </div>
+  </div>
+);
 
 export default Dependency;

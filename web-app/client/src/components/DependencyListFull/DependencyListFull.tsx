@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 
-import "./DependencyListFull.css";
+import "./DependencyListFull.scss";
 import Dependency from "../Dependency/Dependency";
 import SearchBar from "../SearchBar/SearchBar";
 import Toggle from "../Toggle/Toggle";
@@ -24,7 +24,7 @@ const DependencyListFull: React.FC<Props> = ({
   selectedAttributesRHS,
   file,
 }) => {
-  const [sortedDependencies, setSortedDependencies] = useState<coloredDepedency[]>(
+  const [sortedDependencies, setSortedDependencies] = useState<dependency[]>(
     []
   );
   const [chosenDependencyIndex, setChosenDependencyIndex] = useState(-1);
@@ -39,15 +39,15 @@ const DependencyListFull: React.FC<Props> = ({
   useEffect(() => {
     const foundDependencies = (searchString !== ""
       ? dependencies.filter((dep) =>
-        searchString
-          .split(" ")
-          .filter((str) => str)
-          .every(
-            (elem) =>
-              dep.lhs.map((attr) => attr.name).includes(elem) ||
-              dep.rhs.name === elem
-          )
-      )
+          searchString
+            .split(" ")
+            .filter((str) => str)
+            .every(
+              (elem) =>
+                dep.lhs.map((attr) => attr.name).includes(elem) ||
+                dep.rhs.name === elem
+            )
+        )
       : [...dependencies]
     )
       // filter by chosen LHS

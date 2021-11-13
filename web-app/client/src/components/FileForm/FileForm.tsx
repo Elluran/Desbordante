@@ -248,6 +248,7 @@ const FileForm: React.FC<Props> = ({
                   errorPercent: +errorThreshold,
                   hasHeader,
                   maxLHS: +maxLHSAttributes,
+                  parallelism: threadsCount
                 },
                 handleResponse
               );
@@ -263,6 +264,7 @@ const FileForm: React.FC<Props> = ({
                   errorPercent: +errorThreshold,
                   hasHeader,
                   maxLHS: +maxLHSAttributes,
+                  parallelism: threadsCount
                 },
                 setUploadProgress,
                 handleResponse

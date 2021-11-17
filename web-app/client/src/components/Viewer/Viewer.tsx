@@ -49,6 +49,44 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
 
   const [dependencies, setDependencies] = useState<dependency[]>([]);
 
+  const dependencyColors: string[] = [
+    "#ff5757",
+    "#575fff",
+    "#4de3a2",
+    "#edc645",
+    "#d159de",
+    "#32bbc2",
+    "#ffa857",
+    "#8dd44a",
+    "#6298d1",
+    "#969696",
+  ];
+
+  function createColoredDep(
+    dep: dependency,
+    colorsBuffer: string[]
+  ): coloredDepedency {
+    return {
+      lhs: dep.lhs.map((attr) => ({
+        name: attr.name,
+        value: attr.value,
+        color: pickRandomColor(colorsBuffer),
+      })),
+      rhs: {
+        name: dep.rhs.name,
+        value: dep.rhs.value,
+        color: pickRandomColor(colorsBuffer),
+      },
+    };
+  }
+
+  const pickRandomColor = (colors: string[]) => {
+    const pickedIndex = Math.floor(Math.random() * colors.length);
+    const pickedElement = colors[pickedIndex];
+    colors.splice(pickedIndex, 1);
+    return pickedElement;
+  };
+
   const taskFinished = (status: taskStatus) =>
     status === "COMPLETED" || status === "SERVER ERROR";
 
@@ -158,7 +196,11 @@ const Viewer: React.FC<Props> = ({ file, setFile }) => {
         <Route path={`/deps/${taskID}`}>
           <div className="bg-light" style={{ justifyContent: "space-between" }}>
             <DependencyListFull
-              dependencies={dependencies}
+              taskId={taskID}
+              file={file}
+              dependencies={dependencies.map((dep) => {
+                return createColoredDep(dep, dependencyColors.slice(0));
+              })}
               selectedAttributesLHS={selectedAttributesLHS}
               selectedAttributesRHS={selectedAttributesRHS}
             />

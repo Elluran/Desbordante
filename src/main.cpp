@@ -15,13 +15,14 @@
 #include "algorithms/DFD/DFD.h"
 #include "algorithms/Fd_mine.h"
 #include "algorithms/FastFDs.h"
+#include "algorithms/CTane.h"
 
 namespace po = boost::program_options;
 
 INITIALIZE_EASYLOGGINGPP
 
 bool checkOptions(std::string const& alg, double error) {
-    if (alg != "pyro" && alg != "tane" && alg != "fastfds" && alg != "fdmine" && alg != "dfd") {
+    if (alg != "pyro" && alg != "tane" && alg != "fastfds" && alg != "fdmine" && alg != "dfd" && alg != "ctane") {
         std::cout << "ERROR: no matching algorithm. Available algorithms are:\n\tpyro\n\ttane.\n" << std::endl;
         return false;
     }
@@ -40,6 +41,8 @@ int main(int argc, char const *argv[]) {
     double error = 0.0;
     unsigned int maxLhs = -1;
     unsigned int parallelism = 0;
+    unsigned int minSupport = 1;
+    double minConfidence = 1;
 
     po::options_description desc("Allowed options");
     desc.add_options()
@@ -53,6 +56,8 @@ int main(int argc, char const *argv[]) {
         ("maxLHS", po::value<unsigned int>(&maxLhs),
                 (std::string("max considered LHS size. Default: ") + std::to_string((unsigned int)-1)).c_str())
         ("threads", po::value<unsigned int>(&parallelism))
+        ("support", po::value(&minSupport), "Minimum support for CFD. Default 1")
+        ("conf", po::value(&minConfidence), "Minimum confidence for CFD. Default 1")
     ;
 
     po::variables_map vm;
@@ -84,6 +89,7 @@ int main(int argc, char const *argv[]) {
               << ", maxLHS \"" << std::to_string(maxLhs)
               << "\" and dataset \"" << dataset
               << "\" with separator \'" << separator
+              << "\" with minSupport \'" << minSupport
               << "\'. Header is " << (hasHeader ? "" : "not ") << "present. " << std::endl;
     auto path = std::filesystem::current_path() / "inputData" / dataset;
 
@@ -95,9 +101,11 @@ int main(int argc, char const *argv[]) {
     } else if (alg == "dfd") {
         algorithmInstance = std::make_unique<DFD>(path, separator, hasHeader, parallelism);
     } else if (alg == "fdmine"){
-        algorithmInstance = std::make_unique<Fd_mine>(path);
+        algorithmInstance = std::make_unique<Fd_mine>(path, separator, hasHeader);
     } else if (alg == "fastfds") {
         algorithmInstance = std::make_unique<FastFDs>(path, separator, hasHeader, maxLhs, parallelism);
+    } else if (alg == "ctane") {
+        algorithmInstance = std::make_unique<CTane>(path, separator, hasHeader, maxLhs, minSupport, minConfidence);
     }
     try {
         unsigned long long elapsedTime = algorithmInstance->execute();

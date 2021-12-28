@@ -15,7 +15,10 @@ inline std::string & CSVParser::rtrim(std::string &s) {
 
 CSVParser::CSVParser(const std::filesystem::path& path): CSVParser(path, ',', true) {}
 
+CSVParser::CSVParser(const CSVParser& parser) : CSVParser(parser.path, parser.separator, parser.hasHeader) {}
+
 CSVParser::CSVParser(const std::filesystem::path& path, char separator, bool hasHeader) :
+    path(path),
     source(path),
     separator(separator),
     hasHeader(hasHeader),

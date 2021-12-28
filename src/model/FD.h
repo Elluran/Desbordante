@@ -14,7 +14,15 @@ public:
     FD(Vertical const& lhs, Column const& rhs) : lhs_(lhs), rhs_(rhs) {}
 
     std::string toJSONString() const {
-        return "{lhs: " + lhs_.toIndicesString() + ", rhs: " + rhs_.toIndicesString() + "}";
+        std::string lhs;
+        for (auto col : lhs_.getColumns()) {
+            lhs += col->getName() + ' ';
+        }
+        return "{lhs: " + lhs + ", rhs: " + rhs_.getName() + "}";
+    }
+
+    virtual std::string toString() const {
+        return "[" + lhs_.toIndicesString() + "] -> " + rhs_.toIndicesString();
     }
 
     Vertical const& getLhs() const { return lhs_; }

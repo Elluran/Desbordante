@@ -13,6 +13,7 @@
 
 class CSVParser {
 private:
+    std::string path;
     std::ifstream source;
     char separator;
     char escapeSymbol = '\"';
@@ -28,6 +29,8 @@ private:
     static inline std::string & rtrim(std::string &s);
 public:
     explicit CSVParser(const std::filesystem::path& path);
+
+    CSVParser(const CSVParser& parser);
     CSVParser(const std::filesystem::path& path, char separator, bool hasHeader);
     //bool isSameChar(char separator, char escape);
     std::vector<std::string> parseNext();

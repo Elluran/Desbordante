@@ -14,6 +14,7 @@
 class RelationData {
 public:
     static constexpr int nullValueId = -1;
+    static constexpr int unnamedValueId = 0;
 
     virtual unsigned int getNumRows() const = 0;
     virtual std::vector<ColumnData>& getColumnData() = 0;

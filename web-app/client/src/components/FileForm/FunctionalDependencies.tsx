@@ -86,8 +86,8 @@ const FunctionalDependencies: React.FC<Props> = ({ setUploadProgress }) => {
     createTaskWithDatasetChoosingVariables
   >(CREATE_TASK_WITH_CHOOSING_DATASET);
   const data =
-    (createTaskData && createTaskData.createFDTask) ||
-    (chooseTaskData && chooseTaskData.chooseFDTask);
+    (createTaskData && createTaskData.createTaskWithDatasetUploading) ||
+    (chooseTaskData && chooseTaskData.createTaskWithDatasetChoosing);
   const loading = createTaskLoading || chooseTaskLoading;
   const error = createTaskError || chooseTaskError;
 

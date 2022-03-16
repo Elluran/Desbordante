@@ -11,4 +11,4 @@ find_library(PQXX_LIB pqxx)
 add_executable(${BINARY}_cpp_consumer ${run_sources})
 
 target_link_libraries(${BINARY}_cpp_consumer PUBLIC ${CMAKE_PROJECT_NAME}_lib ${PQXX_LIB} Boost::thread pthread)
-target_link_libraries(${BINARY}_cpp_consumer LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads)
+target_link_libraries(${BINARY}_cpp_consumer LINK_PUBLIC ${Boost_LIBRARIES} Threads::Threads easyloggingpp)

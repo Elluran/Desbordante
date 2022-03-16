@@ -17,6 +17,15 @@ public:
         return "{lhs: " + lhs_.ToIndicesString() + ", rhs: " + rhs_.ToIndicesString() + "}";
     }
 
+    std::string ToCompactString() const {
+        auto result = lhs_.ToIndicesString(false);
+        if (!result.empty()) {
+            result += ',';
+        }
+        result += rhs_.ToIndicesString();
+        return result;
+    }
+
     Vertical const& GetLhs() const { return lhs_; }
     Column const& GetRhs() const { return rhs_; }
 

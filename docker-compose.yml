@@ -136,16 +136,16 @@ volumes:
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/uploads/'
+      device: './volumes/uploads/'
   postgres-data:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/postgres-data/'   
+      device: './volumes/postgres-data/'   
   datasets:
     driver: local
     driver_opts:
       type: 'volume'
       o: 'bind'
-      device: '$PWD/volumes/datasets/'
+      device: './volumes/datasets/'

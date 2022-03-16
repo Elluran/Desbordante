@@ -24,7 +24,7 @@ const initBuiltInDatasets = async (sequelize: Sequelize) => {
         { fileName: "EpicMeds.csv", delimiter: "|", hasHeader: true },
         { fileName: "WDC_age.csv", delimiter: ",", hasHeader: true },
         { fileName: "TestLong.csv", delimiter: ",", hasHeader: true },
-        { fileName: "Workshop.csv", delimiter: ",", hasHeader: true },
+        //{ fileName: "Workshop.csv", delimiter: ",", hasHeader: true },
         { fileName: "breast_cancer.csv", delimiter: ",", hasHeader: true },
     ];
     return await async.eachSeries(allowedDatasets,

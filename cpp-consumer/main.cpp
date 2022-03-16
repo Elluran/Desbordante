@@ -1,30 +1,22 @@
-#include <fstream>
-
-#include "json.hpp"
-
-
-#include "db/TaskConfig.h"
-#include "db/DBManager.h"
-
-
-#include "algorithms/Pyro.h"
-#include "algorithms/TaneX.h"
-#include "algorithms/FastFDs.h"
-#include "algorithms/DFD/DFD.h"
-#include "algorithms/Fd_mine.h"
-
-#include "logging/easylogging++.h"
-#include <boost/program_options.hpp>
-
+#include <algorithm>
+#include <cctype>
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
 #include <vector>
-#include <chrono>
-#include <thread>
-#include <future>
 
-INITIALIZE_EASYLOGGINGPP
+#include "db/TaskConfig.h"
+#include "db/DBManager.h"
+
+#include <boost/program_options.hpp>
+#include <easylogging++.h>
+
+#include "AlgoFactory.h"
+
+namespace po = boost::program_options;
+
+//INITIALIZE_EASYLOGGINGPP
 
 std::string TaskConfig::taskInfoTable = "\"TasksInfo\"";
 std::string TaskConfig::fileInfoTable = "\"FilesInfo\"";
@@ -47,98 +39,82 @@ static std::string dbConnection() {
 
 void processTask(TaskConfig const& task, 
                                DBManager const& manager) {
-    auto algName     = task.getAlgName();
-    auto datasetPath = task.getDatasetPath();
-    auto separator   = task.getSeparator();
-    auto hasHeader   = task.getHasHeader();
-    auto seed        = 0;
-    auto error       = task.getErrorPercent();
-    auto maxLhs      = task.getMaxLhs();
-    auto parallelism = task.getParallelism();
-
-    el::Loggers::configureFromGlobal("logging.conf");
-    
-    std::unique_ptr<FDAlgorithm> algInstance;
-
-    std::cout << "Input: algorithm \"" << algName
-              << "\" with seed " << std::to_string(seed)
-              << ", error \"" << std::to_string(error)
-              << ", maxLhs \"" << std::to_string(maxLhs)
-              << "\" and dataset \"" << datasetPath
-              << "\" with separator \'" << separator
-              << "\'. Header is " << (hasHeader ? "" : "not ") << "present. " 
-              << std::endl;
-
-    
-    if (algName == "Pyro") {
-        algInstance = std::make_unique<Pyro>(datasetPath, separator, hasHeader, 
-                                             seed, error, maxLhs, parallelism);
-    } else if (algName == "TaneX") {
-        algInstance = std::make_unique<Tane>(datasetPath, separator, hasHeader, 
-                                             error, maxLhs);
-    } else if (algName == "FastFDs") {
-        algInstance = std::make_unique<FastFDs>(datasetPath, separator, hasHeader,
-                                                maxLhs, parallelism);
-    } else if (algName == "FD mine") {
-        algInstance = std::make_unique<Fd_mine>(datasetPath, separator, hasHeader);
-    } else if (algName == "DFD") {
-        algInstance = std::make_unique<DFD>(datasetPath, separator, hasHeader,
-                                            parallelism);
-    }
-
-    try {
-        task.updateStatus(manager, "IN PROCESS");
-        
-        unsigned long long elapsedTime;
-        const auto& phaseNames = algInstance->getPhaseNames();
-        auto maxPhase = phaseNames.size();
-        task.setMaxPhase(manager, maxPhase);
-        task.updateProgress(manager, 0, phaseNames[0].data(), 1);
-
-        auto executionThread = std::async(
-            std::launch::async,
-            [&elapsedTime, &algInstance]() -> void {
-                elapsedTime = algInstance->execute();
-            }
-        );
-        std::future_status status;
-        do {
-            status = executionThread.wait_for(std::chrono::seconds(0));
-            if (status == std::future_status::ready) {
-                std::cout << "Algorithm was executed" << std::endl;
-                task.updateProgress(manager, 100, phaseNames[maxPhase-1].data(), maxPhase);
-            } else if (status == std::future_status::timeout) {
-                if (TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
-                    std::cout << "Task with ID = " << task.getTaskID() 
-                              << " was cancelled." << std::endl;
-                    break;
-                }
-                auto [cur_phase, phaseProgress] = algInstance->getProgress();
-                task.updateProgress(manager, phaseProgress, 
-                                    phaseNames[cur_phase].data(), cur_phase + 1);
-            } else {
-                throw std::runtime_error("Main thread: unknown future_status");
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        } while (status != std::future_status::ready);
-
-        if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
-            task.setElapsedTime(manager, elapsedTime);
-            auto PKColumnPositions = algInstance->getPKColumnPositions(
-                                                  CSVParser(datasetPath, separator, hasHeader));
-            task.updatePKColumnPositions(manager, PKColumnPositions);
-            task.updateJsonDeps(manager, algInstance->getJsonFDs(false));
-            task.updatePieChartData(manager, algInstance->getPieChartData());
-            task.updateStatus(manager, "COMPLETED");
-        } else {
-            task.updateStatus(manager, "CANCELLED");
-        }
-        task.setIsExecuted(manager);
-        return;
-    } catch (std::runtime_error& e) {
-        std::cout << e.what() << std::endl;
-        throw e;
-    }
+//    auto algo_name = task.getAlgName();
+//    auto dataset_path = task.getDatasetPath();
+//    auto separator = task.getSeparator();
+//    auto hasHeader = task.getHasHeader();
+//    auto seed = 0;
+//    auto error = task.getErrorPercent();
+//    auto maxLhs = task.getMaxLhs();
+//    auto parallelism = task.getParallelism();
+//
+    //el::Loggers::configureFromGlobal("logging.conf");
+//
+//    std::unique_ptr<FDAlgorithm> algInstance;
+//
+//    std::cout << "Input: algorithm \"" << algName
+//              << "\" with seed " << std::to_string(seed)
+//              << ", error \"" << std::to_string(error)
+//              << ", maxLhs \"" << std::to_string(maxLhs)
+//              << "\" and dataset \"" << datasetPath
+//              << "\" with separator \'" << separator
+//              << "\'. Header is " << (hasHeader ? "" : "not ") << "present. "
+//              << std::endl;
+//
+//
+//    try {
+//        task.updateStatus(manager, "IN PROCESS");
+//
+//        unsigned long long elapsedTime;
+//        const auto& phaseNames = algInstance->getPhaseNames();
+//        auto maxPhase = phaseNames.size();
+//        task.setMaxPhase(manager, maxPhase);
+//        task.updateProgress(manager, 0, phaseNames[0].data(), 1);
+//
+//        auto executionThread = std::async(
+//            std::launch::async,
+//            [&elapsedTime, &algInstance]() -> void {
+//                elapsedTime = algInstance->execute();
+//            }
+//        );
+//        std::future_status status;
+//        do {
+//            status = executionThread.wait_for(std::chrono::seconds(0));
+//            if (status == std::future_status::ready) {
+//                std::cout << "Algorithm was executed" << std::endl;
+//                task.updateProgress(manager, 100, phaseNames[maxPhase-1].data(), maxPhase);
+//            } else if (status == std::future_status::timeout) {
+//                if (TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+//                    std::cout << "Task with ID = " << task.getTaskID()
+//                              << " was cancelled." << std::endl;
+//                    break;
+//                }
+//                auto [cur_phase, phaseProgress] = algInstance->getProgress();
+//                task.updateProgress(manager, phaseProgress,
+//                                    phaseNames[cur_phase].data(), cur_phase + 1);
+//            } else {
+//                throw std::runtime_error("Main thread: unknown future_status");
+//            }
+//            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//        } while (status != std::future_status::ready);
+//
+//        if (!TaskConfig::isTaskCancelled(manager, task.getTaskID())) {
+//            task.setElapsedTime(manager, elapsedTime);
+//            auto PKColumnPositions = algInstance->getPKColumnPositions(
+//                                                  CSVParser(datasetPath, separator, hasHeader));
+//            task.updatePKColumnPositions(manager, PKColumnPositions);
+//            task.updateJsonDeps(manager, algInstance->getJsonFDs(false));
+//            task.updatePieChartData(manager, algInstance->getPieChartData());
+//            task.updateStatus(manager, "COMPLETED");
+//        } else {
+//            task.updateStatus(manager, "CANCELLED");
+//        }
+//        task.setIsExecuted(manager);
+//        return;
+//    } catch (std::runtime_error& e) {
+//        std::cout << e.what() << std::endl;
+//        throw e;
+//    }
 }
 
 void processMsg(std::string taskID,

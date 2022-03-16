@@ -4,6 +4,7 @@
 
 #include "json.hpp"
 #include "DBManager.h"
+#include <boost/program_options.hpp>
 
 class TaskConfig{
     std::string const taskID;
@@ -37,12 +38,15 @@ class TaskConfig{
                double errorPercent, char separator, 
                std::string fileID, std::string datasetPath, bool hasHeader, 
                unsigned int maxLHS, unsigned int parallelism)
-        :   taskID(taskID), type(type), algName(algName), 
+        :   taskID(taskID), algName(algName), type(type),
             errorPercent(errorPercent), separator(separator), fileID(fileID),
             datasetPath(datasetPath), 
             hasHeader(hasHeader), maxLHS(maxLHS), parallelism(parallelism) { }
 public:
 
+    auto getParamsIntersection() const {
+        boost::program_options::variables_map vm;
+    }
     auto getAlgName()      const { return algName;      }
     auto getTaskID()       const { return taskID;       }
     auto getErrorPercent() const { return errorPercent; }

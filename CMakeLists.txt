@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(Desbordante)
 
 option(ENABLE_CONSUMER_COMPILE "Build the consumer for kafka" OFF)
+option(DISABLE_DATASETS_UNPACKING "Disable datasets unpacking" OFF)
 
 # By default select Debug build
 if(NOT CMAKE_BUILD_TYPE)
@@ -65,5 +66,8 @@ add_subdirectory("lib/easyloggingpp")
 add_subdirectory("src")
 add_subdirectory("tests")
 
-add_subdirectory("datasets")
+if (NOT DISABLE_DATASETS_UNPACKING)
+    add_subdirectory("datasets")
+endif()
+
 add_subdirectory("cfg")

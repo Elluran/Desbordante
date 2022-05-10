@@ -1,10 +1,12 @@
 usage() {
 cat << EOF  
-Usage: ./build.sh [-c|-consumer] [-h|--help]
+Usage: ./build.sh [-c|-consumer] [-n|--nodatasets] [-h|--help] 
 
--h,     -help,          Display help
+-h,     --help,          Display help
 
--c,     --consumer      Enable consumer compilation
+-c,     --consumer,      Enable consumer compilation
+
+-n,     --nodatasets,    Skip unpacking of datasets/datasets.zip
 
 EOF
 }
@@ -16,8 +18,13 @@ for i in "$@"
     do
     case $i in
         -c|--consumer) # Enable consumer compile
-            PREFIX="-D ENABLE_CONSUMER_COMPILE=ON "
+            PREFIX=$PREFIX"-D ENABLE_CONSUMER_COMPILE=ON "
             ;;
+
+        -n|--nodatasets)
+            PREFIX=$PREFIX"-D DISABLE_DATASETS_UNPACKING=ON " # Skip unpacking of datasets/datasets.zip
+            ;;
+            
         -h|--help|*) # Display help.
             usage
             exit 0

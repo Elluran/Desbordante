@@ -20,11 +20,11 @@ template<typename BetterEnumType>
 static std::string EnumToAvailableValues() {
     std::stringstream avail_values;
 
-    avail_values << '[';
+                avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
-    }
+                for (auto const& name : BetterEnumType::_names()) {
+                    avail_values << name << '|';
+                }
 
     avail_values.seekp(-1, avail_values.cur);
     avail_values << ']';
@@ -36,9 +36,9 @@ static bool CheckOptions(std::string const& task, std::string const& alg, std::s
     if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
         std::cout << "ERROR: no matching task."
                      " Available tasks (primitives to mine) are:\n" +
-                     EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
-        return false;
-    }
+                                     EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
+                        return false;
+                    }
 
     if(task == "metric"){
         if (!algos::Metric::_is_valid(metric.c_str())) {
@@ -61,20 +61,20 @@ static bool CheckOptions(std::string const& task, std::string const& alg, std::s
         std::cout << "ERROR: error should be between 0 and 1.\n";
     }
 
-    return true;
-}
+                                    return true;
+                                }
 
-int main(int argc, char const* argv[]) {
-    std::string algo;
-    std::string dataset;
-    std::string task;
-    char separator = ',';
-    bool has_header = true;
-    int seed = 0;
-    double error = 0.0;
-    unsigned int max_lhs = -1;
-    ushort threads = 0;
-    bool is_null_equal_null = true;
+                int main(int argc, char const* argv[]) {
+                    std::string algo;
+                    std::string dataset;
+                    std::string task;
+                    char separator = ',';
+                    bool has_header = true;
+                    int seed = 0;
+                    double error = 0.0;
+                    unsigned int max_lhs = -1;
+                    ushort threads = 0;
+                    bool is_null_equal_null = true;
 
     /*Options for AR mining and CFD mining algorithms*/
     double min_sup = 0.0;

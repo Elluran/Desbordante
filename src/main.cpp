@@ -1,234 +1,234 @@
-#include <algorithm>
-#include <cctype>
-#include <filesystem>
-#include <iostream>
-#include <optional>
-#include <string>
-#include <vector>
+    #include <algorithm>
+    #include <cctype>
+    #include <filesystem>
+    #include <iostream>
+    #include <optional>
+    #include <string>
+    #include <vector>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/program_options.hpp>
-#include <easylogging++.h>
+    #include <boost/algorithm/string.hpp>
+    #include <boost/program_options.hpp>
+    #include <easylogging++.h>
 
-#include "AlgoFactory.h"
+    #include "AlgoFactory.h"
 
-namespace po = boost::program_options;
+    namespace po = boost::program_options;
 
-INITIALIZE_EASYLOGGINGPP
+    INITIALIZE_EASYLOGGINGPP
 
-template<typename BetterEnumType>
-static std::string EnumToAvailableValues() {
-    std::stringstream avail_values;
+    template<typename BetterEnumType>
+    static std::string EnumToAvailableValues() {
+        std::stringstream avail_values;
 
-    avail_values << '[';
+        avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
+        for (auto const& name : BetterEnumType::_names()) {
+            avail_values << name << '|';
+        }
+
+        avail_values.seekp(-1, avail_values.cur);
+        avail_values << ']';
+
+        return avail_values.str();
     }
 
-    avail_values.seekp(-1, avail_values.cur);
-    avail_values << ']';
-
-    return avail_values.str();
-}
-
-static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
-    if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
-        std::cout << "ERROR: no matching task."
-                     " Available tasks (primitives to mine) are:\n" +
-                     EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
-        return false;
-    }
-
-    if(task == "metric"){
-        if (!algos::Metric::_is_valid(metric.c_str())) {
-            std::cout << "ERROR: no matching metric."
-                         " Available metrics are:\n" +
-                EnumToAvailableValues<algos::Metric>() + '\n';
+    static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
+        if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
+            std::cout << "ERROR: no matching task."
+                         " Available tasks (primitives to mine) are:\n" +
+                         EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
             return false;
         }
+
+                        if(task == "metric"){
+                            if (!algos::Metric::_is_valid(metric.c_str())) {
+                                std::cout << "ERROR: no matching metric."
+                                             " Available metrics are:\n" +
+                                    EnumToAvailableValues<algos::Metric>() + '\n';
+                                return false;
+                            }
+            return true;
+        }
+
+        if (!algos::Algo::_is_valid(alg.c_str())) {
+            std::cout << "ERROR: no matching algorithm."
+                         " Available algorithms are:\n" +
+                         EnumToAvailableValues<algos::Algo>() + '\n';
+            return false;
+        }
+
+        if (error > 1 || error < 0) {
+            std::cout << "ERROR: error should be between 0 and 1.\n";
+        }
+
         return true;
     }
 
-    if (!algos::Algo::_is_valid(alg.c_str())) {
-        std::cout << "ERROR: no matching algorithm."
-                     " Available algorithms are:\n" +
-                     EnumToAvailableValues<algos::Algo>() + '\n';
-        return false;
-    }
+    int main(int argc, char const* argv[]) {
+        std::string algo;
+        std::string dataset;
+        std::string task;
+        char separator = ',';
+        bool has_header = true;
+                        int seed = 0;
+                        double error = 0.0;
+                        unsigned int max_lhs = -1;
+                        ushort threads = 0;
+                        bool is_null_equal_null = true;
 
-    if (error > 1 || error < 0) {
-        std::cout << "ERROR: error should be between 0 and 1.\n";
-    }
-
-    return true;
-}
-
-int main(int argc, char const* argv[]) {
-    std::string algo;
-    std::string dataset;
-    std::string task;
-    char separator = ',';
-    bool has_header = true;
-    int seed = 0;
-    double error = 0.0;
-    unsigned int max_lhs = -1;
-    ushort threads = 0;
-    bool is_null_equal_null = true;
-
-    /*Options for AR mining and CFD mining algorithms*/
-    double min_sup = 0.0;
-    double min_conf = 0.0;
-
-    /*Options for association rule mining algorithms*/
-    std::string ar_input_format;
-    unsigned tid_column_index = 0;
-    unsigned item_column_index = 1;
-    bool has_transaction_id = false;
-
-    /*Options for metric verifier algorithm*/
-    std::string metric;
-    std::vector<unsigned int> lhs_indices;
-    unsigned int rhs_index = 0;
-    double parameter = 0;
-    unsigned int q = 2;
-    bool dist_to_null_infinity = false;
-
-    std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
-                                  " for FD mining.";
-    std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
-                                  EnumToAvailableValues<algos::AlgoMiningType>();
-    std::string const metric_desc = "metric to use. Available metrics:\n" +
-        EnumToAvailableValues<algos::Metric>();
-
-    po::options_description desc("Allowed options");
-    desc.add_options()
-        ("help", "print this message and exit")
-        ("task", po::value<std::string>(&task),
-         task_desc.c_str())
-        ("algo", po::value<std::string>(&algo),
-         algo_desc.c_str())
-        ("data", po::value<std::string>(&dataset),
-         "path to CSV file, relative to ./inputData")
-        ("separator,s", po::value<char>(&separator)->default_value(separator),
-         "CSV separator")
-        ("has_header", po::value<bool>(&has_header)->default_value(has_header),
-         "CSV header presence flag [true|false]")
-        ("seed", po::value<int>(&seed)->default_value(seed), "RNG seed")
-        ("error", po::value<double>(&error)->default_value(error),
-         "error for AFD algorithms")
-        ("max_lhs", po::value<unsigned int>(&max_lhs)->default_value(max_lhs),
-         "max considered LHS size")
-        ("threads", po::value<ushort>(&threads)->default_value(threads),
-         "number of threads to use. If 0 is specified then as many threads are used as "
-         "the hardware can handle concurrently.")
-        ("is_null_equal_null", po::value<bool>(&is_null_equal_null)->default_value(true),
-         "Is NULL value equals another NULL value")
-
-        /*Options for AR and CFD mining algorithms*/
-        ("minsup", po::value<double>(&min_sup), "minimal support value (for AR: between 0 and 1, for CFD: integer more 0)")
-        ("minconf", po::value<double>(&min_conf), "minimal confidence value (between 0 and 1)")
+        /*Options for AR mining and CFD mining algorithms*/
+        double min_sup = 0.0;
+        double min_conf = 0.0;
 
         /*Options for association rule mining algorithms*/
-        ("input_format", po::value<string>(&ar_input_format),
-         "format of the input dataset. [singular|tabular] for AR mining")
-        ("tid_column_index", po::value<unsigned>(&tid_column_index)->default_value(0),
-         "index of the column where a tid is stored (only for \"singular\" input type)")
-        ("item_column_index", po::value<unsigned>(&item_column_index)->default_value(1),
-         "index of the column where an item name is stored (only for \"singular\" input type)")
-        ("has_tid", po::value<bool>(&has_transaction_id)->default_value(false),
-         "does the first column contain a transaction id (only for \"tabular\" input type)")
+        std::string ar_input_format;
+        unsigned tid_column_index = 0;
+        unsigned item_column_index = 1;
+        bool has_transaction_id = false;
 
         /*Options for metric verifier algorithm*/
-        ("metric", po::value<std::string>(&metric), metric_desc.c_str())
-        ("lhs_indices", po::value<std::vector<unsigned int>>(&lhs_indices)->multitoken(),
-         "LHS column indices for metric FD verification")
-        ("rhs_index", po::value<unsigned int>(&rhs_index),
-         "RHS column indices for metric FD verification")
-        ("parameter", po::value<double>(&parameter), "metric FD parameter")
-        ("q", po::value<unsigned int>(&q)->default_value(2), "q-gram length for cosine metric")
-        ("dist_to_null_infinity", po::value<bool>(&dist_to_null_infinity)->default_value(false),
-        "Determines whether distance to NULL value is infinity or zero")
-        ;
+        std::string metric;
+        std::vector<unsigned int> lhs_indices;
+        unsigned int rhs_index = 0;
+        double parameter = 0;
+        unsigned int q = 2;
+        bool dist_to_null_infinity = false;
 
-    po::variables_map vm;
-    try {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);
-    } catch (po::error &e) {
-        std::cout << e.what() << std::endl;
-        return 0;
-    }
+        std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
+                                      " for FD mining.";
+        std::string const task_desc = "type of dependency to mine. Available tasks:\n" +
+                                      EnumToAvailableValues<algos::AlgoMiningType>();
+        std::string const metric_desc = "metric to use. Available metrics:\n" +
+            EnumToAvailableValues<algos::Metric>();
 
-    if (vm.count("help"))
-    {
-        std::cout << desc << std::endl;
-        return 0;
-    }
+        po::options_description desc("Allowed options");
+        desc.add_options()
+            ("help", "print this message and exit")
+            ("task", po::value<std::string>(&task),
+                                         task_desc.c_str())
+                                        ("algo", po::value<std::string>(&algo),
+                                         algo_desc.c_str())
+                                        ("data", po::value<std::string>(&dataset),
+                                         "path to CSV file, relative to ./inputData")
+                                        ("separator,s", po::value<char>(&separator)->default_value(separator),
+                                         "CSV separator")
+                                        ("has_header", po::value<bool>(&has_header)->default_value(has_header),
+                                         "CSV header presence flag [true|false]")
+                                        ("seed", po::value<int>(&seed)->default_value(seed), "RNG seed")
+                                        ("error", po::value<double>(&error)->default_value(error),
+                                         "error for AFD algorithms")
+            ("max_lhs", po::value<unsigned int>(&max_lhs)->default_value(max_lhs),
+             "max considered LHS size")
+            ("threads", po::value<ushort>(&threads)->default_value(threads),
+             "number of threads to use. If 0 is specified then as many threads are used as "
+             "the hardware can handle concurrently.")
+            ("is_null_equal_null", po::value<bool>(&is_null_equal_null)->default_value(true),
+             "Is NULL value equals another NULL value")
 
-    el::Loggers::configureFromGlobal("logging.conf");
+            /*Options for AR and CFD mining algorithms*/
+            ("minsup", po::value<double>(&min_sup), "minimal support value (for AR: between 0 and 1, for CFD: integer more 0)")
+            ("minconf", po::value<double>(&min_conf), "minimal confidence value (between 0 and 1)")
 
-    std::transform(algo.begin(), algo.end(), algo.begin(),
-                   [](unsigned char c) { return std::tolower(c); });
+            /*Options for association rule mining algorithms*/
+            ("input_format", po::value<string>(&ar_input_format),
+             "format of the input dataset. [singular|tabular] for AR mining")
+            ("tid_column_index", po::value<unsigned>(&tid_column_index)->default_value(0),
+             "index of the column where a tid is stored (only for \"singular\" input type)")
+            ("item_column_index", po::value<unsigned>(&item_column_index)->default_value(1),
+             "index of the column where an item name is stored (only for \"singular\" input type)")
+            ("has_tid", po::value<bool>(&has_transaction_id)->default_value(false),
+             "does the first column contain a transaction id (only for \"tabular\" input type)")
 
-    if (!CheckOptions(task, algo, metric, error)) {
-        std::cout << desc << std::endl;
-        return 1;
-    }
+            /*Options for metric verifier algorithm*/
+            ("metric", po::value<std::string>(&metric), metric_desc.c_str())
+            ("lhs_indices", po::value<std::vector<unsigned int>>(&lhs_indices)->multitoken(),
+             "LHS column indices for metric FD verification")
+            ("rhs_index", po::value<unsigned int>(&rhs_index),
+             "RHS column indices for metric FD verification")
+            ("parameter", po::value<double>(&parameter), "metric FD parameter")
+            ("q", po::value<unsigned int>(&q)->default_value(2), "q-gram length for cosine metric")
+            ("dist_to_null_infinity", po::value<bool>(&dist_to_null_infinity)->default_value(false),
+            "Determines whether distance to NULL value is infinity or zero")
+            ;
 
-    auto& data = vm.at("data").value();
-    data = std::filesystem::current_path() / "inputData" / dataset;
+                    po::variables_map vm;
+                    try {
+                        po::store(po::parse_command_line(argc, argv, desc), vm);
+                        po::notify(vm);
+                    } catch (po::error &e) {
+                        std::cout << e.what() << std::endl;
+                        return 0;
+                    }
 
-    /* Remove options that are not related to the algorithm configuration */
-    vm.erase("task");
-    vm.erase("algo");
-
-    if (task == "fd" || task == "typos") {
-        std::cout << "Input: algorithm \"" << algo
-                  << "\" with seed " << std::to_string(seed)
-                  << ", error \"" << std::to_string(error)
-                  << ", max_lhs \"" << std::to_string(max_lhs)
-                  << "\" and dataset \"" << dataset
-                  << "\" with separator \'" << separator
-                  << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
-    } else if (task == "ar" || task == "cfd") {
-        std::cout << "Input: algorithm \"" << algo
-                  << "\" with min. support threshold \"" << std::to_string(min_sup)
-                  << "\", min. confidence threshold \"" << std::to_string(min_conf)
-                  << "\" and dataset \"" << dataset
-                  << "\" with separator \'" << separator
-                  << "\'. Header is " << (has_header ? "" : "not ") << "present. ";
-        if (task == "ar") {
-            std::cout << "\". Input type is \"" << ar_input_format;
-        } else {
-            std::cout << ", max_lhs \"" << std::to_string(max_lhs);
+        if (vm.count("help"))
+        {
+            std::cout << desc << std::endl;
+            return 0;
         }
-        std::cout << "\"" << std::endl;
-    } else if (task == "metric") {
-        algo = "metric";
-        std::stringstream stream;
-        copy(lhs_indices.begin(), lhs_indices.end(), std::ostream_iterator<int>(stream, " "));
-        string lhs_indices_str = stream.str();
-        boost::trim_right(lhs_indices_str);
-        std::cout << "Input metric \"" << metric;
-        if (metric == "cosine") std::cout << "\" with q \"" << q;
-        std::cout << "\" with parameter \"" << parameter
-                  << "\" with LHS indices \"" << lhs_indices_str
-                  << "\" with RHS index\"" << rhs_index
-                  << "\" and dataset \"" << dataset
-                  << "\" with separator \'" << separator
-                  << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
+
+        el::Loggers::configureFromGlobal("logging.conf");
+
+        std::transform(algo.begin(), algo.end(), algo.begin(),
+                       [](unsigned char c) { return std::tolower(c); });
+
+        if (!CheckOptions(task, algo, metric, error)) {
+            std::cout << desc << std::endl;
+            return 1;
+        }
+
+        auto& data = vm.at("data").value();
+        data = std::filesystem::current_path() / "inputData" / dataset;
+
+        /* Remove options that are not related to the algorithm configuration */
+        vm.erase("task");
+        vm.erase("algo");
+
+        if (task == "fd" || task == "typos") {
+            std::cout << "Input: algorithm \"" << algo
+                      << "\" with seed " << std::to_string(seed)
+                      << ", error \"" << std::to_string(error)
+                      << ", max_lhs \"" << std::to_string(max_lhs)
+                      << "\" and dataset \"" << dataset
+                      << "\" with separator \'" << separator
+                      << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
+        } else if (task == "ar" || task == "cfd") {
+            std::cout << "Input: algorithm \"" << algo
+                      << "\" with min. support threshold \"" << std::to_string(min_sup)
+                      << "\", min. confidence threshold \"" << std::to_string(min_conf)
+                      << "\" and dataset \"" << dataset
+                      << "\" with separator \'" << separator
+                      << "\'. Header is " << (has_header ? "" : "not ") << "present. ";
+            if (task == "ar") {
+                std::cout << "\". Input type is \"" << ar_input_format;
+            } else {
+                std::cout << ", max_lhs \"" << std::to_string(max_lhs);
+            }
+            std::cout << "\"" << std::endl;
+        } else if (task == "metric") {
+            algo = "metric";
+            std::stringstream stream;
+            copy(lhs_indices.begin(), lhs_indices.end(), std::ostream_iterator<int>(stream, " "));
+            string lhs_indices_str = stream.str();
+            boost::trim_right(lhs_indices_str);
+            std::cout << "Input metric \"" << metric;
+            if (metric == "cosine") std::cout << "\" with q \"" << q;
+            std::cout << "\" with parameter \"" << parameter
+                      << "\" with LHS indices \"" << lhs_indices_str
+                      << "\" with RHS index\"" << rhs_index
+                      << "\" and dataset \"" << dataset
+                      << "\" with separator \'" << separator
+                      << "\'. Header is " << (has_header ? "" : "not ") << "present. " << std::endl;
+        }
+
+        std::unique_ptr<algos::Primitive> algorithm_instance = algos::CreateAlgorithmInstance(task, algo, vm);
+
+        try {
+            unsigned long long elapsed_time = algorithm_instance->Execute();
+            std::cout << "> ELAPSED TIME: " << elapsed_time << std::endl;
+        } catch (std::runtime_error& e) {
+            std::cout << e.what() << std::endl;
+            return 1;
+        }
+
+        return 0;
     }
-
-    std::unique_ptr<algos::Primitive> algorithm_instance = algos::CreateAlgorithmInstance(task, algo, vm);
-
-    try {
-        unsigned long long elapsed_time = algorithm_instance->Execute();
-        std::cout << "> ELAPSED TIME: " << elapsed_time << std::endl;
-    } catch (std::runtime_error& e) {
-        std::cout << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
-}

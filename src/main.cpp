@@ -16,20 +16,20 @@ namespace po = boost::program_options;
 
 INITIALIZE_EASYLOGGINGPP
 
-template<typename BetterEnumType>
-static std::string EnumToAvailableValues() {
-    std::stringstream avail_values;
+        template<typename BetterEnumType>
+        static std::string EnumToAvailableValues() {
+            std::stringstream avail_values;
 
-    avail_values << '[';
+            avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
-    }
+            for (auto const& name : BetterEnumType::_names()) {
+                avail_values << name << '|';
+            }
 
-    avail_values.seekp(-1, avail_values.cur);
-    avail_values << ']';
+            avail_values.seekp(-1, avail_values.cur);
+            avail_values << ']';
 
-    return avail_values.str();
+            return avail_values.str();
 }
 
 static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
@@ -81,18 +81,18 @@ int main(int argc, char const* argv[]) {
     double min_conf = 0.0;
 
     /*Options for association rule mining algorithms*/
-    std::string ar_input_format;
-    unsigned tid_column_index = 0;
-    unsigned item_column_index = 1;
-    bool has_transaction_id = false;
+                std::string ar_input_format;
+                unsigned tid_column_index = 0;
+                unsigned item_column_index = 1;
+                bool has_transaction_id = false;
 
-    /*Options for metric verifier algorithm*/
-    std::string metric;
-    std::vector<unsigned int> lhs_indices;
-    unsigned int rhs_index = 0;
-    double parameter = 0;
-    unsigned int q = 2;
-    bool dist_to_null_infinity = false;
+                /*Options for metric verifier algorithm*/
+                std::string metric;
+                std::vector<unsigned int> lhs_indices;
+                unsigned int rhs_index = 0;
+                double parameter = 0;
+                unsigned int q = 2;
+                bool dist_to_null_infinity = false;
 
     std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";
@@ -162,7 +162,7 @@ int main(int argc, char const* argv[]) {
 
     if (vm.count("help"))
     {
-        std::cout << desc << std::endl;
+                    std::cout << desc << std::endl;
         return 0;
     }
 
@@ -171,10 +171,10 @@ int main(int argc, char const* argv[]) {
     std::transform(algo.begin(), algo.end(), algo.begin(),
                    [](unsigned char c) { return std::tolower(c); });
 
-    if (!CheckOptions(task, algo, metric, error)) {
-        std::cout << desc << std::endl;
-        return 1;
-    }
+                if (!CheckOptions(task, algo, metric, error)) {
+                    std::cout << desc << std::endl;
+                    return 1;
+                }
 
     auto& data = vm.at("data").value();
     data = std::filesystem::current_path() / "inputData" / dataset;

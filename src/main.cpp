@@ -16,15 +16,15 @@ namespace po = boost::program_options;
 
 INITIALIZE_EASYLOGGINGPP
 
-template<typename BetterEnumType>
-static std::string EnumToAvailableValues() {
-    std::stringstream avail_values;
+            template<typename BetterEnumType>
+            static std::string EnumToAvailableValues() {
+                std::stringstream avail_values;
 
-    avail_values << '[';
+                avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
-    }
+                for (auto const& name : BetterEnumType::_names()) {
+                    avail_values << name << '|';
+                }
 
     avail_values.seekp(-1, avail_values.cur);
     avail_values << ']';
@@ -32,13 +32,13 @@ static std::string EnumToAvailableValues() {
     return avail_values.str();
 }
 
-static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
-    if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
-        std::cout << "ERROR: no matching task."
-                     " Available tasks (primitives to mine) are:\n" +
-                     EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
-        return false;
-    }
+            static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
+                if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
+                    std::cout << "ERROR: no matching task."
+                                 " Available tasks (primitives to mine) are:\n" +
+                                 EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
+                    return false;
+                }
 
     if(task == "metric"){
         if (!algos::Metric::_is_valid(metric.c_str())) {
@@ -50,12 +50,12 @@ static bool CheckOptions(std::string const& task, std::string const& alg, std::s
         return true;
     }
 
-    if (!algos::Algo::_is_valid(alg.c_str())) {
-        std::cout << "ERROR: no matching algorithm."
-                     " Available algorithms are:\n" +
-                     EnumToAvailableValues<algos::Algo>() + '\n';
-        return false;
-    }
+                    if (!algos::Algo::_is_valid(alg.c_str())) {
+                        std::cout << "ERROR: no matching algorithm."
+                                     " Available algorithms are:\n" +
+                                     EnumToAvailableValues<algos::Algo>() + '\n';
+                        return false;
+                    }
 
     if (error > 1 || error < 0) {
         std::cout << "ERROR: error should be between 0 and 1.\n";
@@ -67,8 +67,8 @@ static bool CheckOptions(std::string const& task, std::string const& alg, std::s
 int main(int argc, char const* argv[]) {
     std::string algo;
     std::string dataset;
-    std::string task;
-    char separator = ',';
+                std::string task;
+                char separator = ',';
     bool has_header = true;
     int seed = 0;
     double error = 0.0;
@@ -151,14 +151,14 @@ int main(int argc, char const* argv[]) {
         "Determines whether distance to NULL value is infinity or zero")
         ;
 
-    po::variables_map vm;
-    try {
-        po::store(po::parse_command_line(argc, argv, desc), vm);
-        po::notify(vm);
-    } catch (po::error &e) {
-        std::cout << e.what() << std::endl;
-        return 0;
-    }
+                po::variables_map vm;
+                try {
+                    po::store(po::parse_command_line(argc, argv, desc), vm);
+                    po::notify(vm);
+                } catch (po::error &e) {
+                    std::cout << e.what() << std::endl;
+                    return 0;
+                }
 
     if (vm.count("help"))
     {

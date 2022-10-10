@@ -20,25 +20,25 @@ template<typename BetterEnumType>
 static std::string EnumToAvailableValues() {
     std::stringstream avail_values;
 
-    avail_values << '[';
+                    avail_values << '[';
 
-    for (auto const& name : BetterEnumType::_names()) {
-        avail_values << name << '|';
-    }
+                    for (auto const& name : BetterEnumType::_names()) {
+                        avail_values << name << '|';
+                    }
 
-    avail_values.seekp(-1, avail_values.cur);
-    avail_values << ']';
+                    avail_values.seekp(-1, avail_values.cur);
+                    avail_values << ']';
 
-    return avail_values.str();
+                    return avail_values.str();
 }
 
-static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
-    if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
-        std::cout << "ERROR: no matching task."
-                     " Available tasks (primitives to mine) are:\n" +
-                     EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
-        return false;
-    }
+            static bool CheckOptions(std::string const& task, std::string const& alg, std::string const& metric, double error) {
+                if (!algos::AlgoMiningType::_is_valid(task.c_str())) {
+                    std::cout << "ERROR: no matching task."
+                                 " Available tasks (primitives to mine) are:\n" +
+                                 EnumToAvailableValues<algos::AlgoMiningType>() + '\n';
+                    return false;
+                }
 
     if(task == "metric"){
         if (!algos::Metric::_is_valid(metric.c_str())) {
@@ -84,15 +84,15 @@ int main(int argc, char const* argv[]) {
     std::string ar_input_format;
     unsigned tid_column_index = 0;
     unsigned item_column_index = 1;
-    bool has_transaction_id = false;
+                    bool has_transaction_id = false;
 
-    /*Options for metric verifier algorithm*/
-    std::string metric;
-    std::vector<unsigned int> lhs_indices;
-    unsigned int rhs_index = 0;
-    double parameter = 0;
-    unsigned int q = 2;
-    bool dist_to_null_infinity = false;
+                    /*Options for metric verifier algorithm*/
+                    std::string metric;
+                    std::vector<unsigned int> lhs_indices;
+                    unsigned int rhs_index = 0;
+                    double parameter = 0;
+                    unsigned int q = 2;
+                    bool dist_to_null_infinity = false;
 
     std::string const algo_desc = "algorithm to use. Available algorithms:\n" + EnumToAvailableValues<algos::Algo>() +
                                   " for FD mining.";

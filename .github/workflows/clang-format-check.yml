@@ -4,7 +4,7 @@ jobs:
   clang-format-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: Pull clang-format
       run: |
         sudo apt-get update
@@ -12,14 +12,12 @@ jobs:
         
     - name: Fetch branches
       run: |
-        echo $GITHUB_REF
+        echo $GITHUB_BASE_REF
         echo $GITHUB_HEAD_REF
-        git fetch origin $GITHUB_BASE_REF 
-        git fetch $GITHUB_REF
         
     - name: Check formatting
       run: |       
-        formatterOutput=$(git diff origin/$GITHUB_BASE_REF...$GITHUB_REF | clang-format-diff-12 -p 1)
+        formatterOutput=$(git diff origin/$GITHUB_BASE_REF...$GITHUB_HEAD_REF | clang-format-diff-12 -p 1)
         
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]

@@ -4,22 +4,20 @@ jobs:
   clang-format-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
+    - uses: actions/checkout@v2
+    - uses: technote-space/get-diff-action@v6
+#     - uses: actions/checkout@v3
+#       with:
+#         ref: ${{ github.event.pull_request.head.sha }}
     - name: Pull clang-format
       run: |
         sudo apt-get update
         sudo apt-get install -y clang-format-12
         
-    - name: Fetch branches
-      run: |
-        echo $GITHUB_BASE_REF
-        echo $GITHUB_HEAD_REF
         
     - name: Check formatting
       run: |       
-        formatterOutput=$(git diff $GITHUB_BASE_REF...$GITHUB_HEAD_REF | clang-format-diff-12 -p 1)
+        formatterOutput=$( ${{ env.GIT_DIFF_FILTERED }} | clang-format-diff-12 -p 1)
         
         if [ "$formatterOutput" != "clang-format did not modify any files" ] &&
            [ "$formatterOutput" != "no modified files to format" ]
@@ -35,16 +33,16 @@ jobs:
         echo "$formatterOutput"
         echo "### $formatterOutput :heavy_check_mark:" >> $GITHUB_STEP_SUMMARY
 
-  clang-tidy-check:
-    runs-on: ubuntu-latest
+#   clang-tidy-check:
+#     runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3
+#     steps:
+#     - uses: actions/checkout@v3
 
-    # Optionally generate compile_commands.json
+#     # Optionally generate compile_commands.json
 
-    - uses: ZedThree/clang-tidy-review@v0.10.0
-      id: review
-    # If there are any comments, fail the check
-    - if: steps.review.outputs.total_comments > 0
-      run: exit 1
+#     - uses: ZedThree/clang-tidy-review@v0.10.0
+#       id: review
+#     # If there are any comments, fail the check
+#     - if: steps.review.outputs.total_comments > 0
+#       run: exit 1
